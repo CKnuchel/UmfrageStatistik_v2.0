@@ -1,11 +1,23 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
+using Common.Models;
+using Data.Context;
+using Logic.Interfaces;
+using Logic.Repository;
+using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<IRepository<Modul>, ModulRepository>();
 
-var app = builder.Build();
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<UmfrageContext>(options =>
+                                              {
+                                                  if(connectionString == null) return;
+                                                  options.UseSqlServer(connectionString);
+                                              });
+
+WebApplication app = builder.Build();
 
 if(!app.Environment.IsDevelopment())
 {

@@ -1,3 +1,29 @@
 ﻿@page "/"
+@using Common.Models
+@using Logic.Interfaces
+@inject IRepository<Modul> ModulRepository
 
-<h1>Hello, world!</h1>
+<p>Nur als Testzweck zum bestätigen das die App läuft und die SQL Datenbank gelesen wird.</p>
+
+<table>
+    <tbody>
+    @foreach(Modul m in module)
+    {
+        <tr>
+            <td>@m.Id</td>
+            <td>@m.Name</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+@code
+{
+    private IList<Modul> module = new List<Modul>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        module = await ModulRepository.GetAllAsync();
+    }
+
+}
