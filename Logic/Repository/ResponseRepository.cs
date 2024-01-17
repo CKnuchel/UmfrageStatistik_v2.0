@@ -49,7 +49,7 @@ public class ResponseRepository : IRepository<Response>
     /// </summary>
     /// <param name="semester">Definieren des gewuenschten Semester 1 -> 1.Semester, 2 -> 2.Semester</param>
     /// <param name="year">Definieren des Jahres als</param>
-    /// <returns>Eine Liste mit allen Responses, welceh den Filterkriterien entsprechen</returns>
+    /// <returns>Eine Liste mit allen Responses, welche den Filterkriterien entsprechen</returns>
     public async Task<List<Response>> GetBySemesterAndYear(int semester, int year)
     {
         if(semester < 1 || semester > 2) throw new ArgumentOutOfRangeException();
