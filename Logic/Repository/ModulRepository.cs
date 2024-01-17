@@ -1,11 +1,11 @@
 ﻿using Common.Models;
 using Data.Context;
-using Logic.IRepository;
+using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Repository;
 
-public class ModulRepository : IModulRepository
+public class ModulRepository : IRepository<Modul>
 {
     #region Fields
     private readonly UmfrageContext _context;
@@ -19,14 +19,14 @@ public class ModulRepository : IModulRepository
     #endregion
 
     #region Publics
-    public async Task<List<Modul>> GetAllModuleAsync()
+    public async Task<List<Modul>> GetAllAsync()
     {
-        return await _context.Module.ToListAsync() ?? throw new NullReferenceException("Es existieren keine Einträge");
+        return await (_context.Module ?? throw new InvalidOperationException()).ToListAsync(cancellationToken: CancellationToken.None);
     }
 
-    public async Task<Modul> GetModuleByIdAsync(int modulId)
+    public async Task<Modul> GetByIdAsync(int id)
     {
-        return await _context.Module.FindAsync(modulId) ?? throw new NullReferenceException("Diese Id existiert nicht.");
+        return await (_context.Module ?? throw new InvalidOperationException()).FindAsync(id) ?? throw new NullReferenceException();
     }
     #endregion
 }
