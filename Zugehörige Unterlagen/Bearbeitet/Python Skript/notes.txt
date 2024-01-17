@@ -1,0 +1,1 @@
+Konvertiert n1.CSV in ein Response.csv welches dann in die DB eingelesen werden kann.

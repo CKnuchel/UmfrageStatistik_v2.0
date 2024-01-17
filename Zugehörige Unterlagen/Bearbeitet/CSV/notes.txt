@@ -1,0 +1,3 @@
+Excel von bearbeitet als CSV exportiert
+
+Response.csv ist durch das Python Skript generiert worden.
