@@ -10,8 +10,7 @@ public class Modul
     [Key]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Sie müssen eine Modulbezeichnung zwischen 5 und 80 Zeichen angeben.")]
-    [StringLength(maximumLength: 80, MinimumLength = 5)]
+    [Required]
     public required string Name { get; set; }
     #endregion
 }

@@ -13,8 +13,7 @@ public class Answer
     [Required(ErrorMessage = "Bitte geben Sie die Fragen an, auf welche sich die Antwort bezieht.")]
     public required int QuestionId { get; set; }
 
-    [Required(ErrorMessage = "Geben Sie einen Antworttext zwischen 5 und 80 an.")]
-    [StringLength(maximumLength: 80, MinimumLength = 5)]
+    [Required]
     public required string Text { get; set; }
 
     // Referenzierungen für das "Binding" der Relationen
