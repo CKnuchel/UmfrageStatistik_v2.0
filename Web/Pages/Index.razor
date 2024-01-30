@@ -29,7 +29,7 @@
     </div>
 
 @* Chart *@
-    <div class="row">
+    <div class="row d-flex justify-content-center">
         <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
     </div>
 }
@@ -49,7 +49,7 @@
     // 1.
     protected override void OnInitialized()
     {
-        backgroundColors = ColorGenerator.CategoricalSixteenColors(); // Füllen mit Farben
+        backgroundColors = ColorGenerator.CategoricalTwentyColors(); // Füllen mit Farben
         pieChartOptions = new();
         pieChartOptions.Plugins.Title!.Display = true;
         pieChartOptions.Plugins.Title.Text = chartTitle;
