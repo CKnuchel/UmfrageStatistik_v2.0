@@ -41,16 +41,16 @@
 
     // Chart
     private PieChart pieChart = new PieChart();
-    private readonly PieChartOptions pieChartOptions = default!;
+    private PieChartOptions pieChartOptions = default!;
     private readonly ChartData chartData = default!;
     private string[]? backgroundColors;
-    private readonly string chartTitle = "Auswertung";
+    private string chartTitle = "Auswertung";
 
     // 1.
     protected override void OnInitialized()
     {
         backgroundColors = ColorGenerator.CategoricalSixteenColors(); // Füllen mit Farben
-        pieChartOptions.Responsive = true;
+        pieChartOptions = new();
         pieChartOptions.Plugins.Title!.Display = true;
         pieChartOptions.Plugins.Title.Text = chartTitle;
         pieChartOptions.Plugins.Title.Font!.Size = 24;
@@ -78,6 +78,7 @@
     private void SelectModul(Modul modul)
     {
         selectedModul = modul;
+        chartTitle = $"Auswertung {modul.Name}"; // TODO: Testen ob es funktioniert in dem Chart
     }
 
 }
