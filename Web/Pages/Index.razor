@@ -10,8 +10,8 @@
 @if(module != null)
 {
     PreloadService.Hide();
-
-    <div class="row">
+    <br py-2/>
+    <div class="row text-center">
         <div class="col-4">
             @*Module*@
             <Dropdown>
@@ -27,6 +27,11 @@
             </Dropdown>
         </div>
     </div>
+
+@* Chart *@
+    <div class="row">
+        <PieChart @ref="pieChart" Width="500" Class="mt-5"/>
+    </div>
 }
 
 @code
@@ -34,9 +39,39 @@
     private IList<Modul> module = new List<Modul>();
     private Modul selectedModul = new Modul { Name = "Modul wählen" };
 
+    // Chart
+    private PieChart pieChart = new PieChart();
+    private readonly PieChartOptions pieChartOptions = default!;
+    private readonly ChartData chartData = default!;
+    private string[]? backgroundColors;
+    private readonly string chartTitle = "Auswertung";
+
+    // 1.
+    protected override void OnInitialized()
+    {
+        backgroundColors = ColorGenerator.CategoricalSixteenColors(); // Füllen mit Farben
+        pieChartOptions.Responsive = true;
+        pieChartOptions.Plugins.Title!.Display = true;
+        pieChartOptions.Plugins.Title.Text = chartTitle;
+        pieChartOptions.Plugins.Title.Font!.Size = 24;
+        pieChartOptions.Plugins.Legend.Position = "bottom";
+    }
+
+    // 2.
     protected override async Task OnInitializedAsync()
     {
         module = await ModulRepository.GetAllAsync();
+    }
+
+    // 3.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(firstRender)
+        {
+            await pieChart.InitializeAsync(chartData, pieChartOptions);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     // Hilfsmethoden
@@ -46,4 +81,3 @@
     }
 
 }
-
