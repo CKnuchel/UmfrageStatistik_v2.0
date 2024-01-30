@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddBlazorBootstrap();
 builder.Services.AddScoped<IRepository<Modul>, ModulRepository>();
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

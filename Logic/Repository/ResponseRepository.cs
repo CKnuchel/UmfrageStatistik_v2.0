@@ -48,7 +48,7 @@ public class ResponseRepository : IRepository<Response>
     /// Ermoeglicht das suchen nach Antworten zu einem spezifischen Semester und Jahr
     /// </summary>
     /// <param name="semester">Definieren des gewuenschten Semester 1 -> 1.Semester, 2 -> 2.Semester</param>
-    /// <param name="year">Definieren des Jahres als</param>
+    /// <param name="year">Definieren des Jahres als int</param>
     /// <returns>Eine Liste mit allen Responses, welche den Filterkriterien entsprechen</returns>
     public async Task<List<Response>> GetBySemesterAndYear(int semester, int year)
     {
