@@ -1,17 +1,49 @@
 ﻿@page "/"
-@using Common.Models
-@using Logic.Interfaces
 @inject IRepository<Modul> ModulRepository
+@inject PreloadService PreloadService
 
-<p>Chunnt no</p>
+@if(module == null)
+{
+    PreloadService.Show(SpinnerColor.Dark, loadingText: "Die Daten werden geladen ...");
+}
+
+@if(module != null)
+{
+    PreloadService.Hide();
+
+    <div class="row">
+        <div class="col-4">
+            @*Module*@
+            <Dropdown>
+                <DropdownToggleButton Color="ButtonColor.Primary"> @selectedModul.Name </DropdownToggleButton>
+                <DropdownMenu>
+                    @foreach(Modul m in module)
+                    {
+                        <DropdownItem @onclick="() => SelectModul(m)" Type="ButtonType.Button">
+                            @m.Name
+                        </DropdownItem>
+                    }
+                </DropdownMenu>
+            </Dropdown>
+        </div>
+    </div>
+}
 
 @code
 {
     private IList<Modul> module = new List<Modul>();
+    private Modul selectedModul = new Modul { Name = "Modul wählen" };
 
     protected override async Task OnInitializedAsync()
     {
         module = await ModulRepository.GetAllAsync();
     }
 
+    // Hilfsmethoden
+    private void SelectModul(Modul modul)
+    {
+        selectedModul = modul;
+    }
+
 }
+
