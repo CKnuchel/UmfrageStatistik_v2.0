@@ -20,29 +20,31 @@
 {
     PreloadService.Hide();
     <br py-2/>
-    <div class="row text-center">
-        <div class="col-4">
-            @*Module*@
-            <Dropdown>
-                <DropdownToggleButton Color="ButtonColor.Primary"> @selectedModul.Name </DropdownToggleButton>
-                <DropdownMenu>
-                    @foreach(Modul m in module)
-                    {
-                        <DropdownItem @onclick="() => selectedModul = m" Type="ButtonType.Button">
-                            @m.Name
-                        </DropdownItem>
-                    }
-                </DropdownMenu>
-            </Dropdown>
-
-            @* ReSharper disable Html.AttributeValueNotResolved *@
-            <Button Type="ButtonType.Button" Color="ButtonColor.Info" Size="Size.Small" @onclick="UpdateChart" class=" d-flex text-center justify-content-center">Update Chart</Button>
+        <div class="row justify-content-center">
+            <div class="col-md-8 d-flex justify-content-between align-items-center">
+                <!-- Zentriert die Elemente horizontal und verteilt den verfügbaren Raum dazwischen -->
+                <!-- Dropdown -->
+                <Dropdown>
+                    <DropdownToggleButton Color="ButtonColor.Primary">@selectedModul.Name</DropdownToggleButton>
+                    <DropdownMenu>
+                        @foreach(Modul m in module)
+                        {
+                            <DropdownItem @onclick="() => selectedModul = m" Type="ButtonType.Button">
+                                @m.Name
+                            </DropdownItem>
+                        }
+                    </DropdownMenu>
+                </Dropdown>
+                <!-- Button -->
+                <Button Type="ButtonType.Button" Color="ButtonColor.Info" @onclick="UpdateChart">Update Chart</Button>
+            </div>
         </div>
-    </div>
-
-    @* Chart *@
-    <div class="row d-flex justify-content-center">
-        <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
+    <!-- Chart -->
+    <div class="row justify-content-center my-5">
+        <!-- Fügt vertikalen Abstand oben und unten hinzu -->
+        <div id="chart" class="d-flex justify-content-center">
+            <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
+        </div>
     </div>
 }
 
@@ -59,6 +61,9 @@
     private PieChartOptions pieChartOptions = default!;
     private ChartData chartData = default!;
     private readonly string[] backgroundColors = ColorGenerator.CategoricalTwentyColors(); //TODO: in PieChartDataset direkt definieren
+    #endregion
+
+    #region Const
         private const string STD_TITLE = "Auswertung";
     #endregion
 
@@ -66,6 +71,7 @@
     protected override void OnInitialized()
     {
         pieChartOptions = new PieChartOptions();
+        pieChartOptions.Responsive = true;
         pieChartOptions.Plugins.Title!.Display = true;
         pieChartOptions.Plugins.Title.Text = STD_TITLE;
         pieChartOptions.Plugins.Title.Font!.Size = 24;
