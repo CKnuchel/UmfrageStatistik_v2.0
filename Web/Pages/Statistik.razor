@@ -32,6 +32,8 @@
                     }
                 </DropdownMenu>
             </Dropdown>
+
+            <Button type="button" Color="ButtonColor.Info" Size="Size.Small" @onclick="UpdateChart" class=" d-flex text-center justify-content-center">Update Chart</Button>
         </div>
     </div>
 
@@ -51,16 +53,15 @@
     private PieChart pieChart = new PieChart();
     private PieChartOptions pieChartOptions = default!;
     private readonly ChartData chartData = default!;
-    private string[]? backgroundColors;
-    private string chartTitle = "Auswertung";
+    private string[] backgroundColors = ColorGenerator.CategoricalTwentyColors();
+        private const string STD_TITLE = "Auswertung";
 
     // 1.
     protected override void OnInitialized()
     {
-        backgroundColors = ColorGenerator.CategoricalTwentyColors(); // Füllen mit Farben
-        pieChartOptions = new();
+        pieChartOptions = new PieChartOptions();
         pieChartOptions.Plugins.Title!.Display = true;
-        pieChartOptions.Plugins.Title.Text = chartTitle;
+        pieChartOptions.Plugins.Title.Text = STD_TITLE;
         pieChartOptions.Plugins.Title.Font!.Size = 24;
         pieChartOptions.Plugins.Legend.Position = "bottom";
     }
@@ -86,7 +87,15 @@
     private void SelectModul(Modul modul)
     {
         selectedModul = modul;
-        chartTitle = $"Auswertung {modul.Name}";
     }
+
+    private async void UpdateChart()
+    {
+        pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
+
+        await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und den Labels
+    }
+
+}
 
 }
