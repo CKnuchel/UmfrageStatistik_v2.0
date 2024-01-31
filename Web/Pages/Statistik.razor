@@ -26,7 +26,7 @@
                 <DropdownMenu>
                     @foreach(Modul m in module)
                     {
-                        <DropdownItem @onclick="() => SelectModul(m)" Type="ButtonType.Button">
+                        <DropdownItem @onclick="() => selectedModul = m" Type="ButtonType.Button">
                             @m.Name
                         </DropdownItem>
                     }
@@ -61,7 +61,6 @@
 
     #region Protected
 
-    // 1.
     protected override void OnInitialized()
     {
         pieChartOptions = new PieChartOptions();
@@ -71,13 +70,11 @@
         pieChartOptions.Plugins.Legend.Position = "bottom";
     }
 
-    // 2.
     protected override async Task OnInitializedAsync()
     {
         module = await ModulRepository.GetAllAsync();
     }
 
-    // 3.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
@@ -91,17 +88,11 @@
 
     #region Privates
 
-    // Hilfsmethoden
-    private void SelectModul(Modul modul)
-    {
-        selectedModul = modul;
-    }
-
     private async void UpdateChart()
     {
         pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
 
-        await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und den Labels
+        await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und der Labels
     }
     #endregion
 
