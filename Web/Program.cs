@@ -2,26 +2,37 @@ using Common.Models;
 using Data.Context;
 using Logic.Interfaces;
 using Logic.Repository;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazorBootstrap();
+
+// Hinzufügen der repos
 builder.Services.AddScoped<IRepository<Modul>, ModulRepository>();
+builder.Services.AddScoped<IRepository<Question>, QuestionRepository>();
+builder.Services.AddScoped<IRepository<Answer>, AnswerRepository>();
+builder.Services.AddScoped<IRepository<Response>, ResponseRepository>();
 
-string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); // Auslesen der Verbindung aus dem appsettings.json
 
-builder.Services.AddDbContext<UmfrageContext>(options =>
+builder.Services.AddDbContext<UmfrageContext>(options => // Hinzufügen von unserem Context in die Services des Web
                                               {
                                                   if(connectionString == null) return;
-                                                  options.UseSqlServer(connectionString);
+                                                  options.UseSqlServer(connectionString); // Definieren der Verbindung fuer zum SQL Server
                                               });
 
-WebApplication app = builder.Build();
+var app = builder.Build();
 
+// Configure the HTTP request pipeline.
 if(!app.Environment.IsDevelopment())
 {
+    app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }

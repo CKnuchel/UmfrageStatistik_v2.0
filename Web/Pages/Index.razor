@@ -1,84 +1,9 @@
 ﻿@page "/"
-@inject IRepository<Modul> ModulRepository
-@inject PreloadService PreloadService
 
-@if(module == null)
-{
-    PreloadService.Show(SpinnerColor.Dark, loadingText: "Die Daten werden geladen ...");
-}
+<PageTitle>Index</PageTitle>
 
-@if(module != null)
-{
-    PreloadService.Hide();
-    <br py-2/>
-    <div class="row text-center">
-        <div class="col-4">
-            @*Module*@
-            <Dropdown>
-                <DropdownToggleButton Color="ButtonColor.Primary"> @selectedModul.Name </DropdownToggleButton>
-                <DropdownMenu>
-                    @foreach(Modul m in module)
-                    {
-                        <DropdownItem @onclick="() => SelectModul(m)" Type="ButtonType.Button">
-                            @m.Name
-                        </DropdownItem>
-                    }
-                </DropdownMenu>
-            </Dropdown>
-        </div>
-    </div>
+<h1>Umfragestatistik</h1>
 
-@* Chart *@
-    <div class="row d-flex justify-content-center">
-        <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
-    </div>
-}
+<p>Wechseln Sie im Menü zum Punkt <a href="/statistik">"Statistik anzeigen"</a></p>
 
-@code
-{
-    private IList<Modul> module = new List<Modul>();
-    private Modul selectedModul = new Modul { Name = "Modul wählen" };
-
-    // Chart
-    private PieChart pieChart = new PieChart();
-    private PieChartOptions pieChartOptions = default!;
-    private readonly ChartData chartData = default!;
-    private string[]? backgroundColors;
-    private string chartTitle = "Auswertung";
-
-    // 1.
-    protected override void OnInitialized()
-    {
-        backgroundColors = ColorGenerator.CategoricalTwentyColors(); // Füllen mit Farben
-        pieChartOptions = new();
-        pieChartOptions.Plugins.Title!.Display = true;
-        pieChartOptions.Plugins.Title.Text = chartTitle;
-        pieChartOptions.Plugins.Title.Font!.Size = 24;
-        pieChartOptions.Plugins.Legend.Position = "bottom";
-    }
-
-    // 2.
-    protected override async Task OnInitializedAsync()
-    {
-        module = await ModulRepository.GetAllAsync();
-    }
-
-    // 3.
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if(firstRender)
-        {
-            await pieChart.InitializeAsync(chartData, pieChartOptions);
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    // Hilfsmethoden
-    private void SelectModul(Modul modul)
-    {
-        selectedModul = modul;
-        chartTitle = $"Auswertung {modul.Name}"; // TODO: Testen ob es funktioniert in dem Chart
-    }
-
-}
+<SurveyPrompt Title="How is Blazor working for you?" />
