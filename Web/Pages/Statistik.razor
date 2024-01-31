@@ -54,13 +54,12 @@
     // Chart
     private PieChart pieChart = new PieChart();
     private PieChartOptions pieChartOptions = default!;
-    private readonly ChartData chartData = default!;
-    private string[] backgroundColors = ColorGenerator.CategoricalTwentyColors();
+    private ChartData chartData = default!;
+    private readonly string[] backgroundColors = ColorGenerator.CategoricalTwentyColors(); //TODO: in PieChartDataset direkt definieren
         private const string STD_TITLE = "Auswertung";
     #endregion
 
     #region Protected
-
     protected override void OnInitialized()
     {
         pieChartOptions = new PieChartOptions();
@@ -73,6 +72,7 @@
     protected override async Task OnInitializedAsync()
     {
         module = await ModulRepository.GetAllAsync();
+        chartData = new ChartData { Labels = GetModuleNames(module), Datasets = GetModuleDataset() };
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -87,12 +87,52 @@
     #endregion
 
     #region Privates
-
     private async void UpdateChart()
     {
         pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
 
         await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und der Labels
+    }
+    #endregion
+
+    // TODO: untenstehende Methoden auslagern
+
+    #region Data Preparation
+    private List<IChartDataset> GetModuleDataset()
+    {
+        List<IChartDataset> dataset = new List<IChartDataset>();
+        List<double> testData = new List<double>();
+
+        foreach(Modul modul in module)
+        {
+            testData.Add(modul.Id); // Hier wird jetzt als Wert die ID verwendet (Ausweichslösung zum testen)
+        }
+
+        dataset.Add(new PieChartDataset
+                    {
+                        Label = "Anzahl", // Was beim Hover über dem Kuchenteil angezeigt werden soll vor dem Wert --> Anzahl: 13
+                        Data = testData, // Die Daten mit den Werten --> muss double sein
+                        BackgroundColor = backgroundColors.ToList() // Die Liste mit den Farbcodes welche durch iteriert wird pro neuem Eintrag
+                    });
+
+        return dataset;
+    }
+
+    /// <summary>
+    /// Definiert die Label für die Legende der Ansicht
+    /// </summary>
+    /// <param name="module"></param>
+    /// <returns></returns>
+    private List<string> GetModuleNames(IList<Modul> module)
+    {
+        List<string> names = new List<string>();
+
+        foreach(Modul modul in module)
+        {
+            names.Add(modul.Name);
+        }
+
+        return names;
     }
     #endregion
 
