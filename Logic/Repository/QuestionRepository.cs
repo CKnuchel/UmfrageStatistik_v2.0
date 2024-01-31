@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Logic.Repository;
 
-//TODO: Validierung anpaassen, da Fehler
 public class QuestionRepository : IRepository<Question>
 {
     #region Fields
