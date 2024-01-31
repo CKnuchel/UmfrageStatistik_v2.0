@@ -45,6 +45,8 @@
 
 @code {
 
+    #region Properties
+
     // Private
     private IList<Modul> module = new List<Modul>();
     private Modul selectedModul = new Modul { Name = "Modul wählen" };
@@ -55,6 +57,9 @@
     private readonly ChartData chartData = default!;
     private string[] backgroundColors = ColorGenerator.CategoricalTwentyColors();
         private const string STD_TITLE = "Auswertung";
+    #endregion
+
+    #region Protected
 
     // 1.
     protected override void OnInitialized()
@@ -82,6 +87,9 @@
 
         await base.OnAfterRenderAsync(firstRender);
     }
+    #endregion
+
+    #region Privates
 
     // Hilfsmethoden
     private void SelectModul(Modul modul)
@@ -95,7 +103,6 @@
 
         await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und den Labels
     }
-
-}
+    #endregion
 
 }
