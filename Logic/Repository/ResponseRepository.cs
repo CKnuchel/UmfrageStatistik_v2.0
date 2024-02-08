@@ -44,11 +44,17 @@ public class ResponseRepository : IRepository<Response>
         return await (_context.Responses ?? throw new InvalidOperationException()).Where(r => r.Answer.QuestionId == id).ToListAsync(cancellationToken: CancellationToken.None);
     }
 
+    public async Task<int> GetAnswerCountByQuestionIdAsync(int id)
+    {
+        return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.Answer.QuestionId == id, cancellationToken: CancellationToken.None);
+    }
+
     /// <summary>
     /// Ermoeglicht das suchen nach Antworten zu einem spezifischen Semester und Jahr
     /// </summary>
     /// <param name="semester">Definieren des gewuenschten Semester 1 -> 1.Semester, 2 -> 2.Semester</param>
     /// <param name="year">Definieren des Jahres als int</param>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns>Eine Liste mit allen Responses, welche den Filterkriterien entsprechen</returns>
     public async Task<List<Response>> GetBySemesterAndYear(int semester, int year)
     {

@@ -14,7 +14,7 @@ public class UmfrageContext : DbContext
     #endregion
 
     #region Constructors
-    public UmfrageContext(DbContextOptions<UmfrageContext> options) : base(options)
+    public UmfrageContext(DbContextOptions options) : base(options)
     {
     }
     #endregion

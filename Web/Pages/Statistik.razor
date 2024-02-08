@@ -1,9 +1,6 @@
 ﻿@page "/statistik"
 @inject IRepository<Modul> ModulRepository
-@inject IRepository<Question> QuestionRepository
-@inject IRepository<Answer> AnswerRepository
-@inject IRepository<Response> ResponseRepository
-@inject PreloadService PreloadService
+@inject StandardLoader StandardLoader
 
 <PageTitle>Umfrageauswertung</PageTitle>
 
@@ -11,42 +8,37 @@
 
 <br py-2/>
 
-@if(module == null)
-{
-    PreloadService.Show(SpinnerColor.Dark, loadingText: "Die Daten werden geladen ...");
-}
 
-@if(module != null)
-{
-    PreloadService.Hide();
-    <br py-2/>
-        <div class="row justify-content-center">
-            <div class="col-md-8 d-flex justify-content-between align-items-center">
-                <!-- Zentriert die Elemente horizontal und verteilt den verfügbaren Raum dazwischen -->
-                <!-- Dropdown -->
-                <Dropdown>
-                    <DropdownToggleButton Color="ButtonColor.Primary">@selectedModul.Name</DropdownToggleButton>
-                    <DropdownMenu>
-                        @foreach(Modul m in module)
-                        {
-                            <DropdownItem @onclick="() => selectedModul = m" Type="ButtonType.Button">
-                                @m.Name
-                            </DropdownItem>
-                        }
-                    </DropdownMenu>
-                </Dropdown>
-                <!-- Button -->
-                <Button Type="ButtonType.Button" Color="ButtonColor.Info" @onclick="UpdateChart">Update Chart</Button>
-            </div>
-        </div>
-    <!-- Chart -->
-    <div class="row justify-content-center my-5">
-        <!-- Fügt vertikalen Abstand oben und unten hinzu -->
-        <div id="chart" class="d-flex justify-content-center">
-            <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
-        </div>
+<br py-2/>
+<div class="row justify-content-center">
+    <div class="col-md-8 d-flex justify-content-between align-items-center">
+        <!-- Zentriert die Elemente horizontal und verteilt den verfügbaren Raum dazwischen -->
+        <!-- Dropdown -->
+        <Dropdown>
+            <DropdownToggleButton Color="@ButtonColor.Primary">@selectedModul.Name</DropdownToggleButton>
+            <DropdownMenu>
+                @foreach(Modul m in module)
+                {
+                    <DropdownItem @onclick="() => selectedModul = m" Type="@ButtonType.Button">
+                        @m.Name
+                    </DropdownItem>
+                }
+            </DropdownMenu>
+        </Dropdown>
+        <!-- Button -->
+        @* ReSharper disable Html.AttributeValueNotResolved *@
+        <Button Type="@ButtonType.Button" Color="@ButtonColor.Info" @onclick="UpdateChart">Update Chart</Button>
     </div>
-}
+</div>
+<!-- Chart -->
+<div class="row justify-content-center my-5">
+    <!-- Fügt vertikalen Abstand oben und unten hinzu -->
+    <div id="chart" class="d-flex justify-content-center">
+        <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
+    </div>
+</div>
+
+<p>@testString</p>
 
 @code {
 
@@ -56,24 +48,31 @@
     private IList<Modul> module = new List<Modul>();
     private Modul selectedModul = new Modul { Name = "Modul wählen" };
 
+    string testString;
     // Chart
     private PieChart pieChart = new PieChart();
     private PieChartOptions pieChartOptions = default!;
     private ChartData chartData = default!;
-    private readonly string[] backgroundColors = ColorGenerator.CategoricalTwentyColors(); //TODO: in PieChartDataset direkt definieren
+    private readonly string[] backgroundColors = ColorGenerator.CategoricalTwentyColors();
     #endregion
 
     #region Const
-        private const string STD_TITLE = "Auswertung";
+    private const string STD_TITLE = "Auswertung";
     #endregion
 
     #region Protected
     protected override void OnInitialized()
     {
-        pieChartOptions = new PieChartOptions();
-        pieChartOptions.Responsive = true;
-        pieChartOptions.Plugins.Title!.Display = true;
-        pieChartOptions.Plugins.Title.Text = STD_TITLE;
+        pieChartOptions = new PieChartOptions
+                          {
+                              Responsive = true,
+                              Plugins = new PieChartPlugins()
+                          };
+        pieChartOptions.Plugins.Title = new ChartPluginsTitle
+                                        {
+                                            Display = true,
+                                            Text = STD_TITLE
+                                        };
         pieChartOptions.Plugins.Title.Font!.Size = 24;
         pieChartOptions.Plugins.Legend.Position = "bottom";
     }
@@ -81,7 +80,10 @@
     protected override async Task OnInitializedAsync()
     {
         module = await ModulRepository.GetAllAsync();
+
         chartData = new ChartData { Labels = GetModuleNames(module), Datasets = GetModuleDataset() };
+        //testString = await StandardLoader.GetTestString();
+        chartData = await StandardLoader.LoadData();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -99,7 +101,6 @@
     private async void UpdateChart()
     {
         pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
-
         await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und der Labels
     }
     #endregion
@@ -110,12 +111,7 @@
     private List<IChartDataset> GetModuleDataset()
     {
         List<IChartDataset> dataset = new List<IChartDataset>();
-        List<double> testData = new List<double>();
-
-        foreach(Modul modul in module)
-        {
-            testData.Add(modul.Id); // Hier wird jetzt als Wert die ID verwendet (Ausweichslösung zum testen)
-        }
+        List<double> testData = module.Select(modul => modul.Id).Select(id => (double) id).ToList();
 
         dataset.Add(new PieChartDataset
                     {
@@ -132,16 +128,9 @@
     /// </summary>
     /// <param name="module"></param>
     /// <returns></returns>
-    private List<string> GetModuleNames(IList<Modul> module)
+    private static List<string> GetModuleNames(IEnumerable<Modul> module)
     {
-        List<string> names = new List<string>();
-
-        foreach(Modul modul in module)
-        {
-            names.Add(modul.Name);
-        }
-
-        return names;
+        return module.Select(modul => modul.Name).ToList();
     }
     #endregion
 

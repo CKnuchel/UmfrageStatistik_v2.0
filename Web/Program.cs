@@ -1,23 +1,23 @@
 using Common.Models;
 using Data.Context;
+using Logic.DataLoader;
 using Logic.Interfaces;
 using Logic.Repository;
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.EntityFrameworkCore;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazorBootstrap();
 
-// Hinzufügen der repos
+// Hinzufügen der eigenen Services
 builder.Services.AddScoped<IRepository<Modul>, ModulRepository>();
 builder.Services.AddScoped<IRepository<Question>, QuestionRepository>();
 builder.Services.AddScoped<IRepository<Answer>, AnswerRepository>();
 builder.Services.AddScoped<IRepository<Response>, ResponseRepository>();
+builder.Services.AddScoped<StandardLoader>();
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); // Auslesen der Verbindung aus dem appsettings.json
 
@@ -27,7 +27,7 @@ builder.Services.AddDbContext<UmfrageContext>(options => // Hinzufügen von unser
                                                   options.UseSqlServer(connectionString); // Definieren der Verbindung fuer zum SQL Server
                                               });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if(!app.Environment.IsDevelopment())

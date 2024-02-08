@@ -1,4 +1,5 @@
-﻿using Common.Models;
+﻿using System.Reflection.Metadata.Ecma335;
+using Common.Models;
 using Data.Context;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -33,5 +34,6 @@ public class AnswerRepository : IRepository<Answer>
     {
         return await (_context.Answers ?? throw new InvalidOperationException()).Where(a => a.QuestionId == id).ToListAsync() ?? throw new NullReferenceException();
     }
+
     #endregion
 }
