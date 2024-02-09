@@ -1,6 +1,6 @@
 ﻿using BlazorBootstrap;
 
-namespace Logic.DataLoader;
+namespace Logic.Interfaces;
 
 public interface ILoader
 {

@@ -1,6 +1,7 @@
 ﻿using BlazorBootstrap;
 using Common;
 using Common.Models;
+using Logic.Interfaces;
 
 namespace Logic.DataLoader
 {
