@@ -1,5 +1,4 @@
 ﻿using BlazorBootstrap;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace Logic.DataLoader;
 

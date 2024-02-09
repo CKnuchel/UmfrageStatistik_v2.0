@@ -17,7 +17,7 @@ builder.Services.AddScoped<IRepository<Modul>, ModulRepository>();
 builder.Services.AddScoped<IRepository<Question>, QuestionRepository>();
 builder.Services.AddScoped<IRepository<Answer>, AnswerRepository>();
 builder.Services.AddScoped<IRepository<Response>, ResponseRepository>();
-builder.Services.AddScoped<StandardLoader>();
+builder.Services.AddScoped<ILoader, StandardLoader>();
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); // Auslesen der Verbindung aus dem appsettings.json
 

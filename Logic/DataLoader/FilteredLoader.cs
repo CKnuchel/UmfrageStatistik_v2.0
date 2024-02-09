@@ -1,41 +1,26 @@
 ﻿using BlazorBootstrap;
 using Common.Models;
 using Data.Context;
+using Logic.Repository;
 
 namespace Logic.DataLoader
 {
-    public class FilteredLoader
+    public class FilteredLoader : ILoader
     {
-    //    private UmfrageContext _context;
-    //    private Question[] _questions;
 
-    //    public FilteredLoader(UmfrageContext context)
-    //    {
-    //        _context = context;
-    //    }
+        private IList<Question> questions = new List<Question>();
+        private readonly QuestionRepository _questionRepository;
+        private readonly ResponseRepository _responseRepository;
 
-    //    public ChartData LoadChartDataByModul(Modul modul)
-    //    {
-    //        // TODO
-    //        throw new NotImplementedException();
-    //    }
+        public FilteredLoader(UmfrageContext context)
+        {
+            _questionRepository = new QuestionRepository(context);
+            _responseRepository = new ResponseRepository(context);
+        }
 
-    //    private string[] LoadQuestionLabels(Question[] questions)
-    //    {
-    //        //TODO
-    //        throw new NotImplementedException();
-    //    }
-
-    //    private string[] LoadCountForQuestions(Question[] questions)
-    //    {
-    //        //TODO
-    //        throw new NotImplementedException();
-    //    }
-
-    //    private Question[] LoadQuestionsByModulId(int id)
-    //    {
-    //        //TODO
-    //        throw new NotImplementedException();
-    //    }
+        public async Task<ChartData> LoadData()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

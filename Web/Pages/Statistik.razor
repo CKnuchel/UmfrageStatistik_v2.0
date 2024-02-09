@@ -1,6 +1,6 @@
 ﻿@page "/statistik"
 @inject IRepository<Modul> ModulRepository
-@inject StandardLoader StandardLoader
+@inject ILoader StandardLoader
 
 <PageTitle>Umfrageauswertung</PageTitle>
 
@@ -38,8 +38,6 @@
     </div>
 </div>
 
-<p>@testString</p>
-
 @code {
 
     #region Properties
@@ -48,16 +46,14 @@
     private IList<Modul> module = new List<Modul>();
     private Modul selectedModul = new Modul { Name = "Modul wählen" };
 
-    string testString;
     // Chart
     private PieChart pieChart = new PieChart();
     private PieChartOptions pieChartOptions = default!;
     private ChartData chartData = default!;
-    private readonly string[] backgroundColors = ColorGenerator.CategoricalTwentyColors();
     #endregion
 
     #region Const
-    private const string STD_TITLE = "Auswertung";
+        private const string STD_TITLE = "Anzahl Antworten pro Frage";
     #endregion
 
     #region Protected
@@ -66,29 +62,28 @@
         pieChartOptions = new PieChartOptions
                           {
                               Responsive = true,
-                              Plugins = new PieChartPlugins()
-                          };
-        pieChartOptions.Plugins.Title = new ChartPluginsTitle
+                              Plugins = new PieChartPlugins
                                         {
-                                            Display = true,
-                                            Text = STD_TITLE
-                                        };
+                                            Title = new ChartPluginsTitle
+                                                    {
+                                                        Display = true,
+                                                        Text = STD_TITLE
+                                                    }
+                                        }
+                          };
         pieChartOptions.Plugins.Title.Font!.Size = 24;
         pieChartOptions.Plugins.Legend.Position = "bottom";
     }
 
     protected override async Task OnInitializedAsync()
     {
-        module = await ModulRepository.GetAllAsync();
-
-        chartData = new ChartData { Labels = GetModuleNames(module), Datasets = GetModuleDataset() };
-        //testString = await StandardLoader.GetTestString();
-        chartData = await StandardLoader.LoadData();
+        module = await ModulRepository.GetAllAsync(); // Laden der Module für das Dropdown
+        chartData = await StandardLoader.LoadData(); // Laden der Standard Daten
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if(firstRender)
+        if(!firstRender)
         {
             await pieChart.InitializeAsync(chartData, pieChartOptions);
         }
@@ -102,35 +97,6 @@
     {
         pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
         await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und der Labels
-    }
-    #endregion
-
-    // TODO: untenstehende Methoden auslagern
-
-    #region Data Preparation
-    private List<IChartDataset> GetModuleDataset()
-    {
-        List<IChartDataset> dataset = new List<IChartDataset>();
-        List<double> testData = module.Select(modul => modul.Id).Select(id => (double) id).ToList();
-
-        dataset.Add(new PieChartDataset
-                    {
-                        Label = "Anzahl", // Was beim Hover über dem Kuchenteil angezeigt werden soll vor dem Wert --> Anzahl: 13
-                        Data = testData, // Die Daten mit den Werten --> muss double sein
-                        BackgroundColor = backgroundColors.ToList() // Die Liste mit den Farbcodes welche durch iteriert wird pro neuem Eintrag
-                    });
-
-        return dataset;
-    }
-
-    /// <summary>
-    /// Definiert die Label für die Legende der Ansicht
-    /// </summary>
-    /// <param name="module"></param>
-    /// <returns></returns>
-    private static List<string> GetModuleNames(IEnumerable<Modul> module)
-    {
-        return module.Select(modul => modul.Name).ToList();
     }
     #endregion
 
