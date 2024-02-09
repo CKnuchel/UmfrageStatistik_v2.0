@@ -107,19 +107,21 @@ public partial class Statistik
             chartData = await this.FilteredLoader.LoadData(selectedModul);
         }
 
-        //TODO Zahlenwerte richtig anzeigen
+        //TODO Zahlenwerte ausschliessen --> ENUM für Fragentyp einbauen
         if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 })
         {
             pieChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion?.Text}";
             chartData = await this.FilteredLoader.LoadData(selectedQuestion);
         }
 
-        //TODO Zahlenwerte richtig anzeigen
+        //TODO Zahlenwerte ausschliessen --> ENUM für Fragentyp einbauen
         if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 })
         {
             pieChartOptions.Plugins.Title!.Text = $"{selectedQuestion?.Text} aus {selectedModul?.Name}";
             chartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
         }
+
+        //TODO BarCharts für Fragentypen einbauen --> über ENUM evaluieren
 
         await pieChart.UpdateAsync(chartData, pieChartOptions);
     }
