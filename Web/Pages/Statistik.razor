@@ -1,6 +1,4 @@
 ﻿@page "/statistik"
-@inject IRepository<Modul> ModulRepository
-@inject ILoader StandardLoader
 
 <PageTitle>Umfrageauswertung</PageTitle>
 
@@ -26,7 +24,6 @@
             </DropdownMenu>
         </Dropdown>
         <!-- Button -->
-        @* ReSharper disable Html.AttributeValueNotResolved *@
         <Button Type="@ButtonType.Button" Color="@ButtonColor.Info" @onclick="UpdateChart">Update Chart</Button>
     </div>
 </div>
@@ -37,67 +34,3 @@
         <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
     </div>
 </div>
-
-@code {
-
-    #region Properties
-
-    // Private
-    private IList<Modul> module = new List<Modul>();
-    private Modul selectedModul = new Modul { Name = "Modul wählen" };
-
-    // Chart
-    private PieChart pieChart = new PieChart();
-    private PieChartOptions pieChartOptions = default!;
-    private ChartData chartData = default!;
-    #endregion
-
-    #region Const
-        private const string STD_TITLE = "Anzahl Antworten pro Frage";
-    #endregion
-
-    #region Protected
-    protected override void OnInitialized()
-    {
-        pieChartOptions = new PieChartOptions
-                          {
-                              Responsive = true,
-                              Plugins = new PieChartPlugins
-                                        {
-                                            Title = new ChartPluginsTitle
-                                                    {
-                                                        Display = true,
-                                                        Text = STD_TITLE
-                                                    }
-                                        }
-                          };
-        pieChartOptions.Plugins.Title.Font!.Size = 24;
-        pieChartOptions.Plugins.Legend.Position = "bottom";
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        module = await ModulRepository.GetAllAsync(); // Laden der Module für das Dropdown
-        chartData = await StandardLoader.LoadData(); // Laden der Standard Daten
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if(!firstRender)
-        {
-            await pieChart.InitializeAsync(chartData, pieChartOptions);
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-    #endregion
-
-    #region Privates
-    private async void UpdateChart()
-    {
-        pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
-        await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und der Labels
-    }
-    #endregion
-
-}
