@@ -5,7 +5,7 @@ using Logic.Interfaces;
 
 namespace Logic.DataLoader
 {
-    public class TestLoader : ILoader
+    public class TestLoader : IBasicLoader
     {
         #region Fields
         private readonly IList<Question> questions = new List<Question>();

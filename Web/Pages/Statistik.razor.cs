@@ -9,11 +9,12 @@ public partial class Statistik
 {
     #region Constants
     private const string STD_TITLE = "Anzahl Antworten pro Frage";
+    private static readonly Modul ALLE_MODULE = new() { Id = 0, Name = "Alle anzeigen" };
     #endregion
 
     #region Fields
-    private IList<Modul> module = new List<Modul>();
-    private Modul selectedModul = new() { Name = "Modul wählen" };
+    private readonly IList<Modul> module = new List<Modul>();
+    private Modul? selectedModul = ALLE_MODULE;
 
     // Chart
     private PieChart pieChart = new();
@@ -23,7 +24,10 @@ public partial class Statistik
 
     #region Properties
     [Inject]
-    private ILoader StandardLoader { get; set; } = null!;
+    private IBasicLoader StandardLoader { get; set; } = null!;
+
+    [Inject]
+    private IFilterLoader FilteredLoader { get; set; } = null!;
 
     [Inject]
     private IRepository<Modul> ModulRepository { get; set; } = null!;
@@ -50,7 +54,14 @@ public partial class Statistik
 
     protected override async Task OnInitializedAsync()
     {
-        module = await this.ModulRepository.GetAllAsync(); // Laden der Module für das Dropdown
+        module.Add(ALLE_MODULE);
+        List<Modul> loadedModule = await this.ModulRepository.GetAllAsync();
+
+        foreach(Modul m in loadedModule)
+        {
+            module.Add(m);
+        }
+
         chartData = await this.StandardLoader.LoadData(); // Laden der Standard Daten
     }
 
@@ -58,6 +69,7 @@ public partial class Statistik
     {
         if(!firstRender)
         {
+            UpdateChart();
             await pieChart.InitializeAsync(chartData, pieChartOptions);
         }
 
@@ -68,8 +80,18 @@ public partial class Statistik
     #region Privates
     private async void UpdateChart()
     {
-        pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul.Name}";
-        await pieChart.UpdateAsync(chartData, pieChartOptions); // Updaten des Chart und der Labels
+        if(selectedModul is { Id: 0 })
+        {
+            pieChartOptions.Plugins.Title!.Text = STD_TITLE;
+            chartData = await this.StandardLoader.LoadData();
+            await pieChart.UpdateAsync(chartData, pieChartOptions);
+        }
+        else
+        {
+            pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul?.Name}";
+            chartData = await this.FilteredLoader.LoadData(selectedModul);
+            await pieChart.UpdateAsync(chartData, pieChartOptions);
+        }
     }
     #endregion
 }

@@ -7,7 +7,7 @@ using Logic.Repository;
 
 namespace Logic.DataLoader
 {
-    public class StandardLoader : ILoader
+    public class StandardLoader : IBasicLoader
     {
         #region Fields
         private IList<Question> questions = new List<Question>();

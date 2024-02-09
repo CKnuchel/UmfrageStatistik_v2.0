@@ -2,7 +2,7 @@
 
 namespace Logic.Interfaces;
 
-public interface ILoader
+public interface IBasicLoader
 {
     Task<ChartData> LoadData();
 }
