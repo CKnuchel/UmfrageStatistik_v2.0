@@ -9,12 +9,15 @@ public partial class Statistik
 {
     #region Constants
     private const string STD_TITLE = "Anzahl Antworten pro Frage";
-    private static readonly Modul ALLE_MODULE = new() { Id = 0, Name = "Alle anzeigen" };
+    private static readonly Modul ALLE_MODULE = new() { Id = 0, Name = "Alle Module" };
+    private static readonly Question ALLE_QUESTIONS = new() { Id = 0, Text = "Alle Fragen", Type = 1 };
     #endregion
 
     #region Fields
     private readonly IList<Modul> module = new List<Modul>();
+    private readonly IList<Question> questions = new List<Question>();
     private Modul? selectedModul = ALLE_MODULE;
+    private Question? selectedQuestion = ALLE_QUESTIONS;
 
     // Chart
     private PieChart pieChart = new();
@@ -31,6 +34,9 @@ public partial class Statistik
 
     [Inject]
     private IRepository<Modul> ModulRepository { get; set; } = null!;
+
+    [Inject]
+    private IRepository<Question> QuestionRepository { get; set; } = null!;
     #endregion
 
     #region Protecteds
@@ -62,7 +68,14 @@ public partial class Statistik
             module.Add(m);
         }
 
-        chartData = await this.StandardLoader.LoadData(); // Laden der Standard Daten
+        questions.Add(ALLE_QUESTIONS);
+        List<Question> loadedQuestions = await this.QuestionRepository.GetAllAsync();
+
+        foreach(Question q in loadedQuestions)
+        {
+            questions.Add(q);
+        }
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)

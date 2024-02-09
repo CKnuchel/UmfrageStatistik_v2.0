@@ -64,3 +64,11 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+
+.dropdown-toggle {
+    max-width: 200px; /* Maximale Breite anpassen */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
