@@ -29,28 +29,18 @@ public class ResponseRepository : IRepository<Response>
         return await (_context.Responses ?? throw new InvalidOperationException()).FindAsync(id) ?? throw new NullReferenceException();
     }
 
-    public async Task<List<Response>> GetByAnswerIdAsync(int id)
-    {
-        return await (_context.Responses ?? throw new InvalidOperationException()).Where(r => r.AnswerId == id).ToListAsync(cancellationToken: CancellationToken.None);
-    }
-
-    public async Task<List<Response>> GetByModuleIdAsync(int id)
-    {
-        return await (_context.Responses ?? throw new InvalidOperationException()).Where(r => r.ModulId == id).ToListAsync(cancellationToken: CancellationToken.None);
-    }
-
-    public async Task<List<Response>> GetByQuestionIdAsync(int id)
-    {
-        return await (_context.Responses ?? throw new InvalidOperationException()).Where(r => r.Answer.QuestionId == id).ToListAsync(cancellationToken: CancellationToken.None);
-    }
-
-    public async Task<int> GetAnswerCountByQuestionIdAsync(int id)
+    public async Task<int> GetResponseCountByQuestionIdAsync(int id)
     {
         return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.Answer.QuestionId == id, cancellationToken: CancellationToken.None);
     }
-    public async Task<int> GetAnswerCountByModuleIdAndQuestionIdAsync(int modulId, int questionId)
+    public async Task<int> GetResponseCountByModuleIdAndQuestionIdAsync(int modulId, int questionId)
     {
         return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.Modul.Id == modulId && r.Answer.QuestionId == questionId, cancellationToken: CancellationToken.None);
+    }
+
+    public async Task<int> GetResponseCountByAnswerIdAsync(int id)
+    {
+        return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.AnswerId == id, CancellationToken.None);
     }
 
     /// <summary>

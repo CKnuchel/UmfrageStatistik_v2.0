@@ -95,18 +95,25 @@ public partial class Statistik
     #region Privates
     private async void UpdateChart()
     {
-        if(selectedModul is { Id: 0 })
+        if(selectedModul is { Id: 0 } && selectedQuestion is { Id: 0})
         {
             pieChartOptions.Plugins.Title!.Text = STD_TITLE;
             chartData = await this.StandardLoader.LoadData();
-            await pieChart.UpdateAsync(chartData, pieChartOptions);
         }
-        else
+        
+        if(selectedModul is not { Id: 0} && selectedQuestion is { Id: 0})
         {
-            pieChartOptions.Plugins.Title!.Text = $"Auswertung {selectedModul?.Name}";
+            pieChartOptions.Plugins.Title!.Text = $"Auswertung zu {selectedModul?.Name}";
             chartData = await this.FilteredLoader.LoadData(selectedModul);
-            await pieChart.UpdateAsync(chartData, pieChartOptions);
         }
+
+        if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 })
+        {
+            pieChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion?.Text}";
+            chartData = await this.FilteredLoader.LoadData(selectedQuestion);
+        }
+
+        await pieChart.UpdateAsync(chartData, pieChartOptions);
     }
     #endregion
 }

@@ -46,7 +46,7 @@ namespace Logic.DataLoader
 
             foreach(Question question in questions)
             {
-                int count = await _responseRepository.GetAnswerCountByQuestionIdAsync(question.Id);
+                int count = await _responseRepository.GetResponseCountByQuestionIdAsync(question.Id);
                 answerCount.Add(count);
             }
 
