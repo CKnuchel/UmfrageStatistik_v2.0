@@ -12,7 +12,6 @@ public partial class Statistik
     #endregion
 
     #region Fields
-    // Private
     private IList<Modul> module = new List<Modul>();
     private Modul selectedModul = new() { Name = "Modul wählen" };
 
