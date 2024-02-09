@@ -107,10 +107,18 @@ public partial class Statistik
             chartData = await this.FilteredLoader.LoadData(selectedModul);
         }
 
+        //TODO Zahlenwerte richtig anzeigen
         if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 })
         {
             pieChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion?.Text}";
             chartData = await this.FilteredLoader.LoadData(selectedQuestion);
+        }
+
+        //TODO Zahlenwerte richtig anzeigen
+        if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 })
+        {
+            pieChartOptions.Plugins.Title!.Text = $"{selectedQuestion?.Text} aus {selectedModul?.Name}";
+            chartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
         }
 
         await pieChart.UpdateAsync(chartData, pieChartOptions);

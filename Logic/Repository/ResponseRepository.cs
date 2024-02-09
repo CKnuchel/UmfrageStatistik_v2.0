@@ -43,6 +43,11 @@ public class ResponseRepository : IRepository<Response>
         return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.AnswerId == id, CancellationToken.None);
     }
 
+    public async Task<int> GetResponseCountByAnswerIdAndModulId(int modulId, int answerId)
+    {
+        return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.AnswerId == answerId && r.ModulId == modulId, CancellationToken.None);
+    }
+
     /// <summary>
     /// Ermoeglicht das suchen nach Antworten zu einem spezifischen Semester und Jahr
     /// </summary>

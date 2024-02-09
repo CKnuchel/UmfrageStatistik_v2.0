@@ -29,7 +29,7 @@ namespace Logic.DataLoader
         #region Publics
         public async Task<ChartData> LoadData(Modul? modul)
         {
-            if(modul == null) return null!;
+            if(modul == null) throw new ArgumentNullException(nameof(modul));
 
             questions = await _questionRepository.GetAllAsync();
 
@@ -44,7 +44,7 @@ namespace Logic.DataLoader
 
         public async Task<ChartData> LoadData(Question? question)
         {
-            if(question == null) return null!;
+            if(question == null) throw new ArgumentNullException(nameof(question));
 
             answers = await _answerRepository.GetByQuestionId(question.Id);
 
@@ -57,6 +57,25 @@ namespace Logic.DataLoader
                    };
         }
 
+        public async Task<ChartData> LoadData(Question? question, Modul? modul)
+        {
+            if(question == null) throw new ArgumentNullException(nameof(question));
+            if(modul == null) throw new ArgumentNullException(nameof(modul));
+
+            questions = await _questionRepository.GetAllAsync();
+            answers = await _answerRepository.GetByQuestionId(question.Id);
+
+            List<IChartDataset> datasets = await GetAnswerCountByAnswerIdAndModulIdAsync(modul.Id);
+
+            return new ChartData
+                   {
+                       Labels = answers.Select(q => q.Text.Split('(')[0].Trim()).ToList(),
+                       Datasets = datasets
+                   };
+        }
+        #endregion
+
+        #region Privates
         private async Task<List<IChartDataset>> GetAnswerCountByQuestionAndModulId(int modulId)
         {
             List<double> answerCount = new();
@@ -86,6 +105,27 @@ namespace Logic.DataLoader
             foreach(Answer answer in answers)
             {
                 int count = await _responseRepository.GetResponseCountByAnswerIdAsync(answer.Id);
+                answerCount.Add(count);
+            }
+
+            dataset.Add(new PieChartDataset
+                        {
+                            Label = "Anzahl Antworten",
+                            Data = answerCount,
+                            BackgroundColor = ColorGenerator.CategoricalTwentyColors().ToList()
+                        });
+
+            return dataset;
+        }
+
+        private async Task<List<IChartDataset>> GetAnswerCountByAnswerIdAndModulIdAsync(int modulId)
+        {
+            List<double> answerCount = new();
+            List<IChartDataset> dataset = new();
+
+            foreach(Answer answer in answers)
+            {
+                int count = await _responseRepository.GetResponseCountByAnswerIdAndModulId(modulId, answer.Id);
                 answerCount.Add(count);
             }
 
