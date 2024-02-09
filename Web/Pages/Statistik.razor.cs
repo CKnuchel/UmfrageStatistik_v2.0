@@ -76,6 +76,8 @@ public partial class Statistik
             questions.Add(q);
         }
 
+        chartData = await this.StandardLoader.LoadData();
+
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
