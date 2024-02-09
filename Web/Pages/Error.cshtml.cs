@@ -8,20 +8,28 @@ namespace Web.Pages
     [IgnoreAntiforgeryToken]
     public class ErrorModel : PageModel
     {
+        #region Fields
+        private readonly ILogger<ErrorModel> _logger;
+        #endregion
+
+        #region Properties
         public string? RequestId { get; set; }
 
-        public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+        public bool ShowRequestId => !string.IsNullOrEmpty(this.RequestId);
+        #endregion
 
-        private readonly ILogger<ErrorModel> _logger;
-
+        #region Constructors
         public ErrorModel(ILogger<ErrorModel> logger)
         {
             _logger = logger;
         }
+        #endregion
 
+        #region Publics
         public void OnGet()
         {
-            RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+            this.RequestId = Activity.Current?.Id ?? this.HttpContext.TraceIdentifier;
         }
+        #endregion
     }
 }
