@@ -29,7 +29,7 @@ public partial class Statistik
     private ChartData pieChartData = default!;
 
     private bool bDisplayPieChart = true;
-    private bool bDisplayBarChart = false;
+    private bool bDisplayBarChart;
     #endregion
 
     #region Properties
@@ -97,6 +97,7 @@ public partial class Statistik
     #region Privates
     private async void UpdateChart()
     {
+        // Standartdaten
         if(selectedModul is { Id: 0 } && selectedQuestion is { Id: 0 })
         {
             bDisplayBarChart = false;
@@ -105,6 +106,7 @@ public partial class Statistik
             pieChartData = await this.StandardLoader.LoadData();
         }
 
+        // Nur Modul bezogene Daten 
         if(selectedModul is not { Id: 0 } && selectedQuestion is { Id: 0 })
         {
             bDisplayBarChart = false;
@@ -113,6 +115,7 @@ public partial class Statistik
             pieChartData = await this.FilteredLoader.LoadData(selectedModul);
         }
 
+        // Nur Fragen bezogene Daten
         if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
         {
             bDisplayBarChart = false;
@@ -121,6 +124,7 @@ public partial class Statistik
             pieChartData = await this.FilteredLoader.LoadData(selectedQuestion);
         }
 
+        // Modul und Fragen bezogene Daten
         if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
         {
             bDisplayBarChart = false;
@@ -129,12 +133,21 @@ public partial class Statistik
             pieChartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
         }
 
+        // Nur Fragenbezogene dten für Zahlenbereiche
         if(selectedModul is { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
         {
             bDisplayBarChart = true;
             bDisplayPieChart = false;
+            barChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion.Text}";
         }
-        //TODO BarCharts für Fragentypen einbauen --> über ENUM evaluieren
+
+        // Modul und Fragen bezogene Daten mit Zahlenwert
+        if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
+        {
+            bDisplayBarChart = true;
+            bDisplayPieChart = false;
+            barChartOptions.Plugins.Title!.Text = $"{selectedQuestion.Text} aus {selectedModul?.Name}";
+        }
 
         await pieChart.UpdateAsync(pieChartData, pieChartOptions);
     }
