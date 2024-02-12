@@ -27,9 +27,10 @@ public partial class Statistik
     private PieChartOptions pieChartOptions = default!;
     private BarChartOptions barChartOptions = default!;
     private ChartData pieChartData = default!;
+    private ChartData barChartData = default!;
 
     private bool bDisplayPieChart = true;
-    private bool bDisplayBarChart = false;
+    private bool bDisplayBarChart;
     #endregion
 
     #region Properties
@@ -38,6 +39,9 @@ public partial class Statistik
 
     [Inject]
     private IFilterLoader FilteredLoader { get; set; } = null!;
+
+    [Inject]
+    private IBarChartLoader BarChartLoader { get; set; } = null!;
 
     [Inject]
     private IRepository<Modul> ModulRepository { get; set; } = null!;
@@ -84,10 +88,9 @@ public partial class Statistik
         if(!firstRender)
         {
             UpdateChart();
-            await pieChart.InitializeAsync(pieChartData, pieChartOptions);
 
-            // TODO - z.B IF zum nur eine Datei laden
-            //await barChart.InitializeAsync(chartData, barChartOptions);
+            if(bDisplayPieChart) await pieChart.InitializeAsync(pieChartData, pieChartOptions);
+            if(bDisplayBarChart) await barChart.InitializeAsync(barChartData, barChartOptions);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -139,6 +142,7 @@ public partial class Statistik
             bDisplayBarChart = true;
             bDisplayPieChart = false;
             barChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion.Text}";
+            barChartData = await this.BarChartLoader.LoadData(selectedQuestion);
         }
 
         // Modul und Fragen bezogene Daten mit Zahlenwert
@@ -147,10 +151,11 @@ public partial class Statistik
             bDisplayBarChart = true;
             bDisplayPieChart = false;
             barChartOptions.Plugins.Title!.Text = $"{selectedQuestion.Text} aus {selectedModul?.Name}";
-            // TODO ADD Barcharloader to get Dataset
+            throw new NotImplementedException();
         }
 
-        await pieChart.UpdateAsync(pieChartData, pieChartOptions);
+        if(bDisplayPieChart) await pieChart.UpdateAsync(pieChartData, pieChartOptions);
+        if(bDisplayBarChart) await barChart.UpdateAsync(barChartData, barChartOptions);
     }
     #endregion
 }

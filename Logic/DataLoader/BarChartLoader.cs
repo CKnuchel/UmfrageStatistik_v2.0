@@ -3,11 +3,12 @@ using Common;
 using Common.ChartUtils;
 using Common.Models;
 using Data.Context;
+using Logic.Interfaces;
 using Logic.Repository;
 
 namespace Logic.DataLoader;
 
-public class BarChartLoader
+public class BarChartLoader : IBarChartLoader
 {
     #region Fields
     private readonly ResponseRepository _responseRepository;
