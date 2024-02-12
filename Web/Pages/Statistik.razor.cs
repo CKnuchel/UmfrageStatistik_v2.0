@@ -99,30 +99,40 @@ public partial class Statistik
     {
         if(selectedModul is { Id: 0 } && selectedQuestion is { Id: 0 })
         {
+            bDisplayBarChart = false;
+            bDisplayPieChart = true;
             pieChartOptions.Plugins.Title!.Text = STD_TITLE;
             pieChartData = await this.StandardLoader.LoadData();
         }
 
         if(selectedModul is not { Id: 0 } && selectedQuestion is { Id: 0 })
         {
+            bDisplayBarChart = false;
+            bDisplayPieChart = true;
             pieChartOptions.Plugins.Title!.Text = $"Auswertung zu {selectedModul?.Name}";
             pieChartData = await this.FilteredLoader.LoadData(selectedModul);
         }
 
         if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
         {
+            bDisplayBarChart = false;
+            bDisplayPieChart = true;
             pieChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion?.Text}";
             pieChartData = await this.FilteredLoader.LoadData(selectedQuestion);
         }
 
         if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
         {
+            bDisplayBarChart = false;
+            bDisplayPieChart = true;
             pieChartOptions.Plugins.Title!.Text = $"{selectedQuestion?.Text} aus {selectedModul?.Name}";
             pieChartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
         }
 
         if(selectedModul is { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
         {
+            bDisplayBarChart = true;
+            bDisplayPieChart = false;
         }
         //TODO BarCharts für Fragentypen einbauen --> über ENUM evaluieren
 
