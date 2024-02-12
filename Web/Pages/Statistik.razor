@@ -48,13 +48,15 @@
     <div class="row justify-content-center my-5">
         
         <!-- Pie Chart -->
-        <div id="chart" class="d-flex justify-content-center">
+        <div id="pieChart" class="d-flex justify-content-center">
 
-            <PieChart @ref="pieChart" Width="675" Class="mt-5"/>
+            <PieChart @ref="pieChart" Width="800" Class="mt-4"/>
 
         </div>
         
-        <!-- Bar Chart -->
+        <div id="barChart" class="d-flex justify-content-center">
+            <BarChart @ref="barChart" Width="800" Class="mt-6"></BarChart>
+        </div>
 
     </div>
 }

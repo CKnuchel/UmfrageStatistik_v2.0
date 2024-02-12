@@ -20,7 +20,6 @@ public partial class Statistik
     private readonly IList<Question> questions = new List<Question>();
     private Modul? selectedModul = ALLE_MODULE;
     private Question? selectedQuestion = ALLE_QUESTIONS;
-    private readonly PieChartOptionsGenerator pieOptions = new(STD_TITLE);
 
     // Chart
     private PieChart pieChart = new();
@@ -48,25 +47,12 @@ public partial class Statistik
     protected override void OnInitialized()
     {
         // Pie Chart
+        PieChartOptionsGenerator pieOptions = new(STD_TITLE);
         pieChartOptions = pieOptions.GetOptions();
 
         // Bar Chart
-        barChartOptions = new BarChartOptions
-                          {
-                              Responsive = true,
-                              Interaction = { Mode = InteractionMode.X },
-                              IndexAxis = "x"
-                          };
-
-        barChartOptions.Scales.X!.Title!.Text = "Werte";
-        barChartOptions.Scales.X.Title.Font!.Size = 24;
-        barChartOptions.Scales.X.Title.Display = true;
-
-        barChartOptions.Scales.Y!.Title!.Text = "Anzahl Antworten";
-        barChartOptions.Scales.Y.Title.Font!.Size = 24;
-        barChartOptions.Scales.Y.Title.Display = true;
-
-        barChartOptions.Plugins.Legend.Display = false;
+        BarChartOptionsGenerator barOptions = new("x", "Werte", "Anzahl Antworten");
+        barChartOptions = barOptions.GetOptions();
     }
 
     protected override async Task OnInitializedAsync()
