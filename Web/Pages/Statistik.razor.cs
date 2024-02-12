@@ -147,7 +147,7 @@ public partial class Statistik
             bDisplayBarChart = true;
             bDisplayPieChart = false;
             barChartOptions.Plugins.Title!.Text = $"{selectedQuestion.Text} aus {selectedModul?.Name}";
-            
+            // TODO ADD Barcharloader to get Dataset
         }
 
         await pieChart.UpdateAsync(pieChartData, pieChartOptions);
