@@ -27,6 +27,9 @@ public partial class Statistik
     private PieChartOptions pieChartOptions = default!;
     private BarChartOptions barChartOptions = default!;
     private ChartData pieChartData = default!;
+
+    private bool bDisplayPieChart = true;
+    private bool bDisplayBarChart = false;
     #endregion
 
     #region Properties
@@ -120,7 +123,6 @@ public partial class Statistik
 
         if(selectedModul is { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
         {
-            
         }
         //TODO BarCharts für Fragentypen einbauen --> über ENUM evaluieren
 
