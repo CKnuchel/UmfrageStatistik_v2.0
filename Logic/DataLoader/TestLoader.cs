@@ -1,5 +1,5 @@
 ﻿using BlazorBootstrap;
-using Common;
+using Common.ChartUtils;
 using Common.Models;
 using Logic.Interfaces;
 

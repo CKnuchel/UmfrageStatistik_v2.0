@@ -1,4 +1,4 @@
-﻿namespace Common;
+﻿namespace Common.ChartUtils;
 
 public static class ColorGenerator
 {

@@ -1,4 +1,6 @@
 ﻿using BlazorBootstrap;
+using Common;
+using Common.ChartUtils;
 using Common.Models;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Components;
@@ -18,11 +20,14 @@ public partial class Statistik
     private readonly IList<Question> questions = new List<Question>();
     private Modul? selectedModul = ALLE_MODULE;
     private Question? selectedQuestion = ALLE_QUESTIONS;
+    private readonly PieChartOptionsGenerator pieOptions = new(STD_TITLE);
 
     // Chart
     private PieChart pieChart = new();
+    private BarChart barChart = new();
     private PieChartOptions pieChartOptions = default!;
-    private ChartData chartData = default!;
+    private BarChartOptions barChartOptions = default!;
+    private ChartData pieChartData = default!;
     #endregion
 
     #region Properties
@@ -42,20 +47,26 @@ public partial class Statistik
     #region Protecteds
     protected override void OnInitialized()
     {
-        pieChartOptions = new PieChartOptions
+        // Pie Chart
+        pieChartOptions = pieOptions.GetOptions();
+
+        // Bar Chart
+        barChartOptions = new BarChartOptions
                           {
                               Responsive = true,
-                              Plugins = new PieChartPlugins
-                                        {
-                                            Title = new ChartPluginsTitle
-                                                    {
-                                                        Display = true,
-                                                        Text = STD_TITLE
-                                                    }
-                                        }
+                              Interaction = { Mode = InteractionMode.X },
+                              IndexAxis = "x"
                           };
-        pieChartOptions.Plugins.Title.Font!.Size = 24;
-        pieChartOptions.Plugins.Legend.Position = "bottom";
+
+        barChartOptions.Scales.X!.Title!.Text = "Werte";
+        barChartOptions.Scales.X.Title.Font!.Size = 24;
+        barChartOptions.Scales.X.Title.Display = true;
+
+        barChartOptions.Scales.Y!.Title!.Text = "Anzahl Antworten";
+        barChartOptions.Scales.Y.Title.Font!.Size = 24;
+        barChartOptions.Scales.Y.Title.Display = true;
+
+        barChartOptions.Plugins.Legend.Display = false;
     }
 
     protected override async Task OnInitializedAsync()
@@ -76,8 +87,7 @@ public partial class Statistik
             questions.Add(q);
         }
 
-        chartData = await this.StandardLoader.LoadData();
-
+        pieChartData = await this.StandardLoader.LoadData();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -85,7 +95,10 @@ public partial class Statistik
         if(!firstRender)
         {
             UpdateChart();
-            await pieChart.InitializeAsync(chartData, pieChartOptions);
+            await pieChart.InitializeAsync(pieChartData, pieChartOptions);
+
+            // TODO - z.B IF zum nur eine Datei laden
+            //await barChart.InitializeAsync(chartData, barChartOptions);
         }
 
         await base.OnAfterRenderAsync(firstRender);
@@ -95,35 +108,37 @@ public partial class Statistik
     #region Privates
     private async void UpdateChart()
     {
-        if(selectedModul is { Id: 0 } && selectedQuestion is { Id: 0})
+        if(selectedModul is { Id: 0 } && selectedQuestion is { Id: 0 })
         {
             pieChartOptions.Plugins.Title!.Text = STD_TITLE;
-            chartData = await this.StandardLoader.LoadData();
+            pieChartData = await this.StandardLoader.LoadData();
         }
-        
-        if(selectedModul is not { Id: 0} && selectedQuestion is { Id: 0})
+
+        if(selectedModul is not { Id: 0 } && selectedQuestion is { Id: 0 })
         {
             pieChartOptions.Plugins.Title!.Text = $"Auswertung zu {selectedModul?.Name}";
-            chartData = await this.FilteredLoader.LoadData(selectedModul);
+            pieChartData = await this.FilteredLoader.LoadData(selectedModul);
         }
 
-        //TODO Zahlenwerte ausschliessen --> ENUM für Fragentyp einbauen
-        if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 })
+        if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
         {
             pieChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion?.Text}";
-            chartData = await this.FilteredLoader.LoadData(selectedQuestion);
+            pieChartData = await this.FilteredLoader.LoadData(selectedQuestion);
         }
 
-        //TODO Zahlenwerte ausschliessen --> ENUM für Fragentyp einbauen
-        if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 })
+        if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
         {
             pieChartOptions.Plugins.Title!.Text = $"{selectedQuestion?.Text} aus {selectedModul?.Name}";
-            chartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
+            pieChartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
         }
 
+        if(selectedModul is { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
+        {
+            
+        }
         //TODO BarCharts für Fragentypen einbauen --> über ENUM evaluieren
 
-        await pieChart.UpdateAsync(chartData, pieChartOptions);
+        await pieChart.UpdateAsync(pieChartData, pieChartOptions);
     }
     #endregion
 }
