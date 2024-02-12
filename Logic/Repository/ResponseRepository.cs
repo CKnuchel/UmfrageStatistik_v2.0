@@ -33,6 +33,7 @@ public class ResponseRepository : IRepository<Response>
     {
         return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.Answer.QuestionId == id, cancellationToken: CancellationToken.None);
     }
+
     public async Task<int> GetResponseCountByModuleIdAndQuestionIdAsync(int modulId, int questionId)
     {
         return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.Modul.Id == modulId && r.Answer.QuestionId == questionId, cancellationToken: CancellationToken.None);
@@ -46,6 +47,11 @@ public class ResponseRepository : IRepository<Response>
     public async Task<int> GetResponseCountByAnswerIdAndModulId(int modulId, int answerId)
     {
         return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.AnswerId == answerId && r.ModulId == modulId, CancellationToken.None);
+    }
+
+    public async Task<int> GetResponseCountByQuestionIdAndValue(int questionId, int nValue)
+    {
+        return await (_context.Responses ?? throw new InvalidOperationException()).CountAsync(r => r.Answer.QuestionId == questionId && r.Value == nValue);
     }
 
     /// <summary>

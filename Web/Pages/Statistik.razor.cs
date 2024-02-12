@@ -29,7 +29,7 @@ public partial class Statistik
     private ChartData pieChartData = default!;
 
     private bool bDisplayPieChart = true;
-    private bool bDisplayBarChart;
+    private bool bDisplayBarChart = false;
     #endregion
 
     #region Properties
@@ -133,7 +133,7 @@ public partial class Statistik
             pieChartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
         }
 
-        // Nur Fragenbezogene dten für Zahlenbereiche
+        // Nur Fragenbezogene Daten für Zahlenbereiche
         if(selectedModul is { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
         {
             bDisplayBarChart = true;
@@ -147,6 +147,7 @@ public partial class Statistik
             bDisplayBarChart = true;
             bDisplayPieChart = false;
             barChartOptions.Plugins.Title!.Text = $"{selectedQuestion.Text} aus {selectedModul?.Name}";
+            
         }
 
         await pieChart.UpdateAsync(pieChartData, pieChartOptions);
