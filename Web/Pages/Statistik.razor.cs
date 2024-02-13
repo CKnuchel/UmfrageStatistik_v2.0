@@ -10,7 +10,6 @@ namespace Web.Pages;
 public partial class Statistik
 {
     #region Constants
-    private const string STD_TITLE = "Anzahl Antworten pro Frage";
     private static readonly Modul ALLE_MODULE = new() { Id = 0, Name = "Alle Module" };
     private static readonly Question ALLE_QUESTIONS = new() { Id = 0, Text = "Alle Fragen", Type = 1 };
     #endregion
@@ -54,7 +53,7 @@ public partial class Statistik
     protected override void OnInitialized()
     {
         // Pie Chart
-        PieChartOptionsGenerator pieOptions = new(STD_TITLE);
+        PieChartOptionsGenerator pieOptions = new("Anzahl Antworten pro Frage");
         pieChartOptions = pieOptions.GetOptions();
 
         // Bar Chart
@@ -81,6 +80,7 @@ public partial class Statistik
         }
 
         pieChartData = await this.StandardLoader.LoadData();
+        barChartData = await this.BarChartLoader.LoadData();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -88,7 +88,6 @@ public partial class Statistik
         if(!firstRender)
         {
             UpdateChart();
-
             if(bDisplayPieChart) await pieChart.InitializeAsync(pieChartData, pieChartOptions);
             if(bDisplayBarChart) await barChart.InitializeAsync(barChartData, barChartOptions);
         }
@@ -105,7 +104,7 @@ public partial class Statistik
         {
             bDisplayBarChart = false;
             bDisplayPieChart = true;
-            pieChartOptions.Plugins.Title!.Text = STD_TITLE;
+            pieChartOptions.Plugins.Title!.Text = "Anzahl Antworten pro Frage";
             pieChartData = await this.StandardLoader.LoadData();
         }
 
