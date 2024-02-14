@@ -29,6 +29,11 @@ builder.Services.AddDbContext<UmfrageContext>(options => // Hinzufügen von unser
                                                   options.UseSqlServer(connectionString); // Definieren der Verbindung fuer zum SQL Server
                                               });
 
+builder.Services.AddDbContextFactory<UmfrageContext>(options =>
+                                                     {
+                                                         options.UseSqlServer(connectionString);
+                                                     }, ServiceLifetime.Scoped);
+
 WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
