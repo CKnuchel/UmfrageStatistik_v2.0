@@ -93,9 +93,6 @@ public partial class Statistik : ComponentBase
         this.BarChartData = await this.BarChartLoader.LoadData();
         this.ModuleList.AddRange(loadedModulesTask);
         this.QuestionList.AddRange(loadedQuestionsTask);
-
-        // Initialisierung der Diagramme aus OnInitializedAsync
-        // await InitializeChartsAsync();
     }
 
     private async Task InitializeChartsAsync()
