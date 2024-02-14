@@ -5,38 +5,45 @@ using Common.Models;
 using Data.Context;
 using Logic.Interfaces;
 using Logic.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logic.DataLoader;
 
 public class BarChartLoader : IBarChartLoader
 {
     #region Fields
-    private readonly ResponseRepository _responseRepository;
+    private readonly IDbContextFactory<UmfrageContext> _contextFactory;
     #endregion
 
     #region Constructors
-    public BarChartLoader(UmfrageContext context)
+    public BarChartLoader(IDbContextFactory<UmfrageContext> contextFactory)
     {
-        _responseRepository = new ResponseRepository(context);
+        _contextFactory = contextFactory;
     }
     #endregion
 
     #region Publics
     public async Task<ChartData> LoadData(Question question)
     {
+        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+        ResponseRepository responseRepository = new(context);
+
         return new ChartData
                {
                    Labels = FillLabelsFrom1To10(),
-                   Datasets = await GetDatasetByQuestionId(question.Id)
+                   Datasets = await GetDatasetByQuestionId(question.Id, responseRepository)
                };
     }
 
     public async Task<ChartData> LoadData()
     {
+        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+        ResponseRepository responseRepository = new(context);
+
         return new ChartData
                {
                    Labels = FillLabelsFrom1To10(),
-                   Datasets = await GetDatasetByQuestionType((int) QuestionType.Zahlenbereich)
+                   Datasets = await GetDatasetByQuestionType((int) QuestionType.Zahlenbereich, responseRepository)
                };
     }
     #endregion
@@ -54,14 +61,14 @@ public class BarChartLoader : IBarChartLoader
         return labels;
     }
 
-    private async Task<List<IChartDataset>> GetDatasetByQuestionId(int questionId)
+    private async Task<List<IChartDataset>> GetDatasetByQuestionId(int questionId, ResponseRepository responseRepository)
     {
         List<double> answerCount = new();
         List<IChartDataset> datasets = new();
 
         for(int i = 1; i <= 10; i++)
         {
-            int nCount = await _responseRepository.GetResponseCountByQuestionIdAndValue(questionId, (int) QuestionType.Zahlenbereich);
+            int nCount = await responseRepository.GetResponseCountByQuestionIdAndValue(questionId, (int) QuestionType.Zahlenbereich);
             answerCount.Add(nCount);
         }
 
@@ -77,14 +84,14 @@ public class BarChartLoader : IBarChartLoader
         return datasets;
     }
 
-    private async Task<List<IChartDataset>> GetDatasetByQuestionType(int nType)
+    private async Task<List<IChartDataset>> GetDatasetByQuestionType(int nType, ResponseRepository responseRepository)
     {
         List<double> answerCount = new();
         List<IChartDataset> datasets = new();
 
         for(int i = 1; i <= 10; i++)
         {
-            int nCount = await _responseRepository.GetResponseCountByQuestionTypeAndValue(i, nType);
+            int nCount = await responseRepository.GetResponseCountByQuestionTypeAndValue(i, nType);
             answerCount.Add(nCount);
         }
 

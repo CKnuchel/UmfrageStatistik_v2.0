@@ -26,8 +26,8 @@ namespace Logic.DataLoader
         public async Task<ChartData> LoadData()
         {
             await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-            QuestionRepository questionRepository = new QuestionRepository(context);
-            ResponseRepository responseRepository = new ResponseRepository(context);
+            QuestionRepository questionRepository = new(context);
+            ResponseRepository responseRepository = new(context);
 
             questions = await questionRepository.GetAllAsync();
 

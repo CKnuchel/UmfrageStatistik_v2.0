@@ -4,25 +4,22 @@ using Common.Models;
 using Data.Context;
 using Logic.Interfaces;
 using Logic.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logic.DataLoader
 {
     public class FilteredLoader : IFilterLoader
     {
         #region Fields
+        private readonly IDbContextFactory<UmfrageContext> _contextFactory;
         private IList<Question> questions = new List<Question>();
         private IList<Answer> answers = new List<Answer>();
-        private readonly QuestionRepository _questionRepository;
-        private readonly ResponseRepository _responseRepository;
-        private readonly AnswerRepository _answerRepository;
         #endregion
 
         #region Constructors
-        public FilteredLoader(UmfrageContext context)
+        public FilteredLoader(IDbContextFactory<UmfrageContext> contextFactory)
         {
-            _questionRepository = new QuestionRepository(context);
-            _responseRepository = new ResponseRepository(context);
-            _answerRepository = new AnswerRepository(context);
+            _contextFactory = contextFactory;
         }
         #endregion
 
@@ -31,9 +28,13 @@ namespace Logic.DataLoader
         {
             if(modul == null) throw new ArgumentNullException(nameof(modul));
 
-            questions = await _questionRepository.GetAllAsync();
+            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+            QuestionRepository questionRepository = new(context);
+            ResponseRepository responseRepository = new(context);
 
-            List<IChartDataset> datasets = await GetAnswerCountByQuestionAndModulId(modul.Id);
+            questions = await questionRepository.GetAllAsync();
+
+            List<IChartDataset> datasets = await GetAnswerCountByQuestionAndModulId(modul.Id, responseRepository);
 
             return new ChartData
                    {
@@ -46,9 +47,13 @@ namespace Logic.DataLoader
         {
             if(question == null) throw new ArgumentNullException(nameof(question));
 
-            answers = await _answerRepository.GetByQuestionId(question.Id);
+            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+            AnswerRepository answerRepository = new(context);
+            ResponseRepository responseRepository = new(context);
 
-            List<IChartDataset> datasets = await GetAnswerCountByAnswerId();
+            answers = await answerRepository.GetByQuestionId(question.Id);
+
+            List<IChartDataset> datasets = await GetAnswerCountByAnswerId(responseRepository);
 
             return new ChartData
                    {
@@ -62,10 +67,15 @@ namespace Logic.DataLoader
             if(question == null) throw new ArgumentNullException(nameof(question));
             if(modul == null) throw new ArgumentNullException(nameof(modul));
 
-            questions = await _questionRepository.GetAllAsync();
-            answers = await _answerRepository.GetByQuestionId(question.Id);
+            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+            QuestionRepository questRepository = new(context);
+            AnswerRepository answerRepository = new(context);
+            ResponseRepository responseRepository = new(context);
 
-            List<IChartDataset> datasets = await GetAnswerCountByAnswerIdAndModulIdAsync(modul.Id);
+            questions = await questRepository.GetAllAsync();
+            answers = await answerRepository.GetByQuestionId(question.Id);
+
+            List<IChartDataset> datasets = await GetAnswerCountByAnswerIdAndModulIdAsync(modul.Id, responseRepository);
 
             return new ChartData
                    {
@@ -76,14 +86,14 @@ namespace Logic.DataLoader
         #endregion
 
         #region Privates
-        private async Task<List<IChartDataset>> GetAnswerCountByQuestionAndModulId(int modulId)
+        private async Task<List<IChartDataset>> GetAnswerCountByQuestionAndModulId(int modulId, ResponseRepository responseRepository)
         {
             List<double> answerCount = new();
             List<IChartDataset> datasets = new();
 
             foreach(Question question in questions)
             {
-                int count = await _responseRepository.GetResponseCountByModuleIdAndQuestionIdAsync(modulId, question.Id);
+                int count = await responseRepository.GetResponseCountByModuleIdAndQuestionIdAsync(modulId, question.Id);
                 answerCount.Add(count);
             }
 
@@ -97,14 +107,14 @@ namespace Logic.DataLoader
             return datasets;
         }
 
-        private async Task<List<IChartDataset>> GetAnswerCountByAnswerId()
+        private async Task<List<IChartDataset>> GetAnswerCountByAnswerId(ResponseRepository responseRepository)
         {
             List<double> answerCount = new();
             List<IChartDataset> dataset = new();
 
             foreach(Answer answer in answers)
             {
-                int count = await _responseRepository.GetResponseCountByAnswerIdAsync(answer.Id);
+                int count = await responseRepository.GetResponseCountByAnswerIdAsync(answer.Id);
                 answerCount.Add(count);
             }
 
@@ -118,14 +128,14 @@ namespace Logic.DataLoader
             return dataset;
         }
 
-        private async Task<List<IChartDataset>> GetAnswerCountByAnswerIdAndModulIdAsync(int modulId)
+        private async Task<List<IChartDataset>> GetAnswerCountByAnswerIdAndModulIdAsync(int modulId, ResponseRepository responseRepository)
         {
             List<double> answerCount = new();
             List<IChartDataset> dataset = new();
 
             foreach(Answer answer in answers)
             {
-                int count = await _responseRepository.GetResponseCountByAnswerIdAndModulId(modulId, answer.Id);
+                int count = await responseRepository.GetResponseCountByAnswerIdAndModulId(modulId, answer.Id);
                 answerCount.Add(count);
             }
 
