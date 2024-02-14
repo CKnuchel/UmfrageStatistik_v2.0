@@ -51,7 +51,7 @@ public class BarChartLoader : IBarChartLoader
     #region Privates
     private List<string> FillLabelsFrom1To10()
     {
-        List<string> labels = new List<string>();
+        List<string> labels = new();
 
         for(int i = 1; i <= 10; i++)
         {
