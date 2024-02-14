@@ -2,159 +2,176 @@
 using Common;
 using Common.ChartUtils;
 using Common.Models;
+using Data.Context;
 using Logic.Interfaces;
 using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 
 namespace Web.Pages;
 
-public partial class Statistik
+public partial class Statistik : ComponentBase
 {
     #region Constants
-    private static readonly Modul ALLE_MODULE = new() { Id = 0, Name = "Alle Module" };
-    private static readonly Question ALLE_QUESTIONS = new() { Id = 0, Text = "Alle Fragen", Type = 1 };
+    private static readonly Modul DefaultModul = new() { Id = 0, Name = "Alle Module" };
+    private static readonly Question DefaultQuestion = new() { Id = 0, Text = "Alle Fragen", Type = 1 };
     #endregion
 
     #region Fields
-    private readonly IList<Modul> module = new List<Modul>();
-    private readonly IList<Question> questions = new List<Question>();
-    private Modul? selectedModul = ALLE_MODULE;
-    private Question? selectedQuestion = ALLE_QUESTIONS;
-
-    // Chart
-    private PieChart pieChart = new();
-    private BarChart barChart = new();
-    private PieChartOptions pieChartOptions = default!;
-    private BarChartOptions barChartOptions = default!;
-    private ChartData pieChartData = default!;
-    private ChartData barChartData = default!;
-
-    private bool bDisplayPieChart = true;
-    private bool bDisplayBarChart;
+    private bool IsPieChartInitialized;
+    private bool IsBarChartInitialized;
     #endregion
 
     #region Properties
-    [Inject]
-    private IBasicLoader StandardLoader { get; set; } = null!;
+    public Modul SelectedModul { get; set; } = DefaultModul;
+    public Question SelectedQuestion { get; set; } = DefaultQuestion;
+    public List<Modul> ModuleList { get; set; } = new();
+    public List<Question> QuestionList { get; set; } = new();
+    public PieChart PieChart { get; set; } = new();
+    public BarChart BarChart { get; set; } = new();
+    public PieChartOptions PieChartOptions { get; set; } = new();
+    public BarChartOptions BarChartOptions { get; set; } = new();
+    public ChartData PieChartData { get; set; } = new();
+    public ChartData BarChartData { get; set; } = new();
+    public bool DisplayPieChart { get; set; } = true;
+    public bool DisplayBarChart { get; set; }
 
     [Inject]
-    private IFilterLoader FilteredLoader { get; set; } = null!;
+    public IBasicLoader BasicLoader { get; set; } = default!;
 
     [Inject]
-    private IBarChartLoader BarChartLoader { get; set; } = null!;
+    public IFilterLoader FilterLoader { get; set; } = default!;
 
     [Inject]
-    private IRepository<Modul> ModulRepository { get; set; } = null!;
+    public IBarChartLoader BarChartLoader { get; set; } = default!;
 
     [Inject]
-    private IRepository<Question> QuestionRepository { get; set; } = null!;
+    public IRepository<Modul> ModulRepository { get; set; } = default!;
+
+    [Inject]
+    public IRepository<Question> QuestionRepository { get; set; } = default!;
+
+    [Inject]
+    public IDbContextFactory<UmfrageContext> ContextFactory { get; set; } = default!;
     #endregion
 
     #region Protecteds
-    protected override void OnInitialized()
+    protected override void OnInitialized() // 1
     {
-        // Pie Chart
-        PieChartOptionsGenerator pieOptions = new("Anzahl Antworten pro Frage");
-        pieChartOptions = pieOptions.GetOptions();
-
-        // Bar Chart
-        BarChartOptionsGenerator barOptions = new("x", "Werte", "Anzahl Antworten");
-        barChartOptions = barOptions.GetOptions();
+        InitializeChartOptions();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() // 2
     {
-        module.Add(ALLE_MODULE);
-        List<Modul> loadedModule = await this.ModulRepository.GetAllAsync();
-
-        foreach(Modul m in loadedModule)
-        {
-            module.Add(m);
-        }
-
-        questions.Add(ALLE_QUESTIONS);
-        List<Question> loadedQuestions = await this.QuestionRepository.GetAllAsync();
-
-        foreach(Question q in loadedQuestions)
-        {
-            questions.Add(q);
-        }
-
-        pieChartData = await this.StandardLoader.LoadData();
-        barChartData = await this.BarChartLoader.LoadData();
+        await LoadInitialDataAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender) // 3
     {
-        if(!firstRender)
+        if(firstRender)
         {
-            UpdateChart();
-            if(bDisplayPieChart) await pieChart.InitializeAsync(pieChartData, pieChartOptions);
-            if(bDisplayBarChart) await barChart.InitializeAsync(barChartData, barChartOptions);
+            await InitializeChartsAsync();
         }
-
-        await base.OnAfterRenderAsync(firstRender);
     }
     #endregion
 
     #region Privates
-    private async void UpdateChart()
+    private void InitializeChartOptions()
     {
-        // Standartdaten
-        if(selectedModul is { Id: 0 } && selectedQuestion is { Id: 0 })
-        {
-            bDisplayBarChart = false;
-            bDisplayPieChart = true;
-            pieChartOptions.Plugins.Title!.Text = "Anzahl Antworten pro Frage";
-            pieChartData = await this.StandardLoader.LoadData();
-        }
+        this.PieChartOptions = new PieChartOptionsGenerator("Anzahl Antworten pro Frage").GetOptions();
+        this.BarChartOptions = new BarChartOptionsGenerator("x", "Werte", "Anzahl Antworten").GetOptions();
+    }
 
-        // Nur Modul bezogene Daten 
-        if(selectedModul is not { Id: 0 } && selectedQuestion is { Id: 0 })
-        {
-            bDisplayBarChart = false;
-            bDisplayPieChart = true;
-            pieChartOptions.Plugins.Title!.Text = $"Auswertung zu {selectedModul?.Name}";
-            pieChartData = await this.FilteredLoader.LoadData(selectedModul);
-        }
+    private async Task LoadInitialDataAsync()
+    {
+        this.ModuleList.Add(DefaultModul);
+        this.QuestionList.Add(DefaultQuestion);
 
-        // Nur Fragen bezogene Daten
-        if(selectedModul is { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
-        {
-            bDisplayBarChart = false;
-            bDisplayPieChart = true;
-            pieChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion?.Text}";
-            pieChartData = await this.FilteredLoader.LoadData(selectedQuestion);
-        }
+        List<Modul> loadedModulesTask = await this.ModulRepository.GetAllAsync();
+        List<Question> loadedQuestionsTask = await this.QuestionRepository.GetAllAsync();
 
-        // Modul und Fragen bezogene Daten
-        if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.AuswahlFrage })
-        {
-            bDisplayBarChart = false;
-            bDisplayPieChart = true;
-            pieChartOptions.Plugins.Title!.Text = $"{selectedQuestion?.Text} aus {selectedModul?.Name}";
-            pieChartData = await this.FilteredLoader.LoadData(selectedQuestion, selectedModul);
-        }
+        this.PieChartData = await this.BasicLoader.LoadData();
+        this.BarChartData = await this.BarChartLoader.LoadData();
+        this.ModuleList.AddRange(loadedModulesTask);
+        this.QuestionList.AddRange(loadedQuestionsTask);
 
-        // Nur Fragenbezogene Daten für Zahlenbereiche
-        if(selectedModul is { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
-        {
-            bDisplayBarChart = true;
-            bDisplayPieChart = false;
-            barChartOptions.Plugins.Title!.Text = $"Auswertung zu der Frage {selectedQuestion.Text}";
-            barChartData = await this.BarChartLoader.LoadData(selectedQuestion);
-        }
+        // Initialisierung der Diagramme aus OnInitializedAsync
+        // await InitializeChartsAsync();
+    }
 
-        // Modul und Fragen bezogene Daten mit Zahlenwert
-        if(selectedModul is not { Id: 0 } && selectedQuestion is not { Id: 0 } && selectedQuestion is { Type: (int) QuestionType.Zahlenbereich })
-        {
-            bDisplayBarChart = true;
-            bDisplayPieChart = false;
-            barChartOptions.Plugins.Title!.Text = $"{selectedQuestion.Text} aus {selectedModul?.Name}";
-            throw new NotImplementedException();
-        }
+    private async Task InitializeChartsAsync()
+    {
+        await DetermineChartDataAsync();
+        await UpdateDisplayedChartsAsync();
+        IsPieChartInitialized = this.DisplayPieChart;
+        IsBarChartInitialized = this.DisplayBarChart;
+    }
 
-        if(bDisplayPieChart) await pieChart.UpdateAsync(pieChartData, pieChartOptions);
-        if(bDisplayBarChart) await barChart.UpdateAsync(barChartData, barChartOptions);
+    private async Task DetermineChartDataAsync()
+    {
+        if(this.SelectedModul.Id == 0 && this.SelectedQuestion.Id == 0)
+        {
+            this.PieChartData = await this.BasicLoader.LoadData();
+            this.DisplayPieChart = true;
+            this.DisplayBarChart = false;
+        }
+        else if(this.SelectedModul.Id != 0 && this.SelectedQuestion.Id == 0)
+        {
+            this.PieChartData = await this.FilterLoader.LoadData(this.SelectedModul);
+            this.DisplayPieChart = true;
+            this.DisplayBarChart = false;
+        }
+        else if(this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage)
+        {
+            this.PieChartData = await this.FilterLoader.LoadData(this.SelectedQuestion);
+            this.DisplayPieChart = true;
+            this.DisplayBarChart = false;
+        }
+        else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich)
+        {
+            this.BarChartData = await this.BarChartLoader.LoadData(this.SelectedQuestion);
+            this.DisplayPieChart = false;
+            this.DisplayBarChart = true;
+        }
+    }
+
+    private async Task UpdateDisplayedChartsAsync()
+    {
+        if(this.DisplayPieChart)
+        {
+            if(!IsPieChartInitialized)
+            {
+                await this.PieChart.InitializeAsync(this.PieChartData, this.PieChartOptions);
+                IsPieChartInitialized = true;
+            }
+            else
+            {
+                await this.PieChart.UpdateAsync(this.PieChartData, this.PieChartOptions);
+            }
+
+            if(IsBarChartInitialized)
+            {
+                await this.BarChart.DisposeAsync();
+                IsBarChartInitialized = false;
+            }
+        }
+        else if(this.DisplayBarChart)
+        {
+            if(!IsBarChartInitialized)
+            {
+                await this.BarChart.InitializeAsync(this.BarChartData, this.BarChartOptions);
+                IsBarChartInitialized = true;
+            }
+            else
+            {
+                await this.BarChart.UpdateAsync(this.BarChartData, this.BarChartOptions);
+            }
+
+            if(IsPieChartInitialized)
+            {
+                await this.PieChart.DisposeAsync();
+                IsPieChartInitialized = false;
+            }
+        }
     }
     #endregion
 }
