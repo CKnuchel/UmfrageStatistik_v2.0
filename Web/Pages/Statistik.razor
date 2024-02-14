@@ -4,24 +4,24 @@
 
 <h3 class="text-center">Umfragestatistik</h3>
 
-<br py-2/>
+<br py-2 />
 
-@if(module == null!)
+@if(ModuleList == null || ModuleList.Count == 0)
 {
     <p>Daten werden geladen...</p>
 }
-@if(module != null)
+else
 {
     <div class="row justify-content-center">
 
         <div class="col-md-3 d-flex justify-content-between align-items-center">
             <!-- Modul Filter -->
             <Dropdown>
-                <DropdownToggleButton Class="dropdown-toggle" Color="@ButtonColor.Primary">@selectedModul!.Name</DropdownToggleButton>
-                <DropdownMenu>
-                    @foreach(Modul m in module)
+                <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@SelectedModul?.Name</DropdownToggleButton>
+                    <DropdownMenu>
+                        @foreach(var m in ModuleList)
                     {
-                        <DropdownItem @onclick="() => selectedModul = m" Type="@ButtonType.Button">
+                        <DropdownItem @onclick="() => SelectedModul = m" Type="ButtonType.Button">
                             @m.Name
                         </DropdownItem>
                     }
@@ -30,40 +30,34 @@
 
             <!-- Question Filter -->
             <Dropdown>
-                <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@selectedQuestion!.Text</DropdownToggleButton>
-                <DropdownMenu>
-                    @foreach(Question q in questions)
+                <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@SelectedQuestion?.Text</DropdownToggleButton>
+                    <DropdownMenu>
+                        @foreach(var q in QuestionList)
                     {
-                        <DropdownItem @onclick="() => selectedQuestion = q" Type="ButtonType.Button">
+                        <DropdownItem @onclick="() => SelectedQuestion = q" Type="ButtonType.Button">
                             @q.Text
                         </DropdownItem>
                     }
                 </DropdownMenu>
             </Dropdown>
-
         </div>
-
     </div>
 
     <!-- Chart -->
     <div class="row justify-content-center my-5">
-        @if(bDisplayPieChart)
+        @if(DisplayPieChart)
         {
             <!-- Pie Chart -->
             <div id="pieChart" class="d-flex justify-content-center">
-
-                <PieChart @ref="pieChart" Width="650" Class="mt-4"/>
-
+                <PieChart @ref="PieChart" Width="650" Class="mt-4" />
             </div>
         }
 
-        @if(bDisplayBarChart)
+        @if(DisplayBarChart)
         {
             <!-- Bar Chart -->
             <div id="barChart" class="d-flex justify-content-center">
-
-                <BarChart @ref="barChart" Width="650" Class="mt-6"></BarChart>
-
+                <BarChart @ref="BarChart" Width="650" Class="mt-6"></BarChart>
             </div>
         }
     </div>

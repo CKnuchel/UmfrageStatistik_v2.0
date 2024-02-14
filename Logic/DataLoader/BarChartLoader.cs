@@ -30,6 +30,15 @@ public class BarChartLoader : IBarChartLoader
                    Datasets = await GetDatasetByQuestionId(question.Id)
                };
     }
+
+    public async Task<ChartData> LoadData()
+    {
+        return new ChartData
+               {
+                   Labels = FillLabelsFrom1To10(),
+                   Datasets = await GetDatasetByQuestionType((int) QuestionType.Zahlenbereich)
+               };
+    }
     #endregion
 
     #region Privates
@@ -53,6 +62,29 @@ public class BarChartLoader : IBarChartLoader
         for(int i = 1; i <= 10; i++)
         {
             int nCount = await _responseRepository.GetResponseCountByQuestionIdAndValue(questionId, (int) QuestionType.Zahlenbereich);
+            answerCount.Add(nCount);
+        }
+
+        datasets.Add(new BarChartDataset
+                     {
+                         Data = answerCount,
+                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[0] },
+                         BorderColor = new List<string> { "FFFFFF" },
+                         BorderWidth = new List<double> { 0 }
+                     }
+                    );
+
+        return datasets;
+    }
+
+    private async Task<List<IChartDataset>> GetDatasetByQuestionType(int nType)
+    {
+        List<double> answerCount = new();
+        List<IChartDataset> datasets = new();
+
+        for(int i = 1; i <= 10; i++)
+        {
+            int nCount = await _responseRepository.GetResponseCountByQuestionTypeAndValue(i, nType);
             answerCount.Add(nCount);
         }
 

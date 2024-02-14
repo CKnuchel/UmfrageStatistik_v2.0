@@ -4,6 +4,7 @@ using Common.Models;
 using Data.Context;
 using Logic.Interfaces;
 using Logic.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace Logic.DataLoader
 {
@@ -11,24 +12,26 @@ namespace Logic.DataLoader
     {
         #region Fields
         private IList<Question> questions = new List<Question>();
-        private readonly QuestionRepository _questionRepository;
-        private readonly ResponseRepository _responseRepository;
+        private readonly IDbContextFactory<UmfrageContext> _contextFactory;
         #endregion
 
         #region Constructors
-        public StandardLoader(UmfrageContext context)
+        public StandardLoader(IDbContextFactory<UmfrageContext> contextFactory)
         {
-            _questionRepository = new QuestionRepository(context);
-            _responseRepository = new ResponseRepository(context);
+            _contextFactory = contextFactory;
         }
         #endregion
 
         #region Publics
         public async Task<ChartData> LoadData()
         {
-            questions = await _questionRepository.GetAllAsync();
+            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+            QuestionRepository questionRepository = new QuestionRepository(context);
+            ResponseRepository responseRepository = new ResponseRepository(context);
 
-            List<IChartDataset> datasets = await GetAnswerCountByQuestion();
+            questions = await questionRepository.GetAllAsync();
+
+            List<IChartDataset> datasets = await GetAnswerCountByQuestion(responseRepository);
 
             return new ChartData
                    {
@@ -39,14 +42,14 @@ namespace Logic.DataLoader
         #endregion
 
         #region Privates
-        private async Task<List<IChartDataset>> GetAnswerCountByQuestion()
+        private async Task<List<IChartDataset>> GetAnswerCountByQuestion(ResponseRepository responseRepository)
         {
             List<double> answerCount = new();
             List<IChartDataset> datasets = new();
 
             foreach(Question question in questions)
             {
-                int count = await _responseRepository.GetResponseCountByQuestionIdAsync(question.Id);
+                int count = await responseRepository.GetResponseCountByQuestionIdAsync(question.Id);
                 answerCount.Add(count);
             }
 
