@@ -71,6 +71,8 @@ public partial class Statistik : ComponentBase
         {
             await InitializeChartsAsync();
         }
+
+        await InitializeChartsAsync();
     }
     #endregion
 
