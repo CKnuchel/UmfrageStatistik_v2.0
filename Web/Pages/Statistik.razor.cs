@@ -180,6 +180,8 @@ public partial class Statistik : ComponentBase
 
     private async Task UpdateDisplayedChartsAsync()
     {
+        StateHasChanged(); // Stellt sicher, dass zuvor das Objekt im DOM geladen wurde
+
         if(this.DisplayPieChart)
         {
             if(!IsPieChartInitialized)

@@ -36,7 +36,7 @@ public class PieChartOptionsGenerator
                                                      Display = true,
                                                      Font =
                                                      {
-                                                         Size = 24
+                                                         Size = 30
                                                      }
                                                  },
                                          Legend =
@@ -45,6 +45,8 @@ public class PieChartOptionsGenerator
                                          }
                                      }
                        };
+
+        this.options.Plugins.Legend.Align = "left";
     }
     #endregion
 }

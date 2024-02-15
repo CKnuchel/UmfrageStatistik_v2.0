@@ -23,6 +23,7 @@ public class BarChartLoader : IBarChartLoader
     }
     #endregion
 
+    #region Publics
     public async Task<ChartData> LoadData()
     {
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
@@ -35,7 +36,6 @@ public class BarChartLoader : IBarChartLoader
                };
     }
 
-    #region Publics
     public async Task<ChartData> LoadData(Question question)
     {
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();

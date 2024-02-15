@@ -45,15 +45,20 @@ else
 
     <!-- Chart -->
     <div class="row justify-content-center my-5">
+        @if(DisplayPieChart)
+        {
+            <!-- Pie Chart -->
+            <div id="pieChart" class="d-flex justify-content-center">
+                <PieChart @ref="PieChart" Width="750" Class="mt-4"/>
+            </div>
+        }
 
-        <!-- Pie Chart -->
-        <div id="pieChart" class="d-flex justify-content-center" hidden="@(!DisplayPieChart)">
-            <PieChart @ref="PieChart" Width="650" Class="mt-4"/>
-        </div>
-
-        <!-- Bar Chart -->
-        <div id="barChart" class="d-flex justify-content-center" hidden="@(!DisplayBarChart)">
-            <BarChart @ref="BarChart" Width="650" Class="mt-4"></BarChart>
-        </div>
+        @if(DisplayBarChart)
+        {
+            <!-- Bar Chart -->
+            <div id="barChart" class="d-flex justify-content-center">
+                <BarChart @ref="BarChart" Width="1250" Class="mt-4"></BarChart>
+            </div>
+        }
     </div>
 }
