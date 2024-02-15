@@ -54,6 +54,20 @@ public partial class Statistik : ComponentBase
     public IDbContextFactory<UmfrageContext> ContextFactory { get; set; } = default!;
     #endregion
 
+    #region Publics
+    public async Task SetSelectedModul(Modul modul)
+    {
+        this.SelectedModul = modul;
+        await LoadDataBasedOnSelectionAsync();
+    }
+
+    public async Task SetSelectedQuestion(Question question)
+    {
+        this.SelectedQuestion = question;
+        await LoadDataBasedOnSelectionAsync();
+    }
+    #endregion
+
     #region Protecteds
     protected override void OnInitialized() // 1
     {
@@ -72,11 +86,18 @@ public partial class Statistik : ComponentBase
             await InitializeChartsAsync();
         }
 
-        await InitializeChartsAsync();
+        await base.OnAfterRenderAsync(firstRender);
     }
     #endregion
 
     #region Privates
+    private async Task LoadDataBasedOnSelectionAsync()
+    {
+        await DetermineChartDataAsync();
+        await UpdateDisplayedChartsAsync();
+        StateHasChanged();
+    }
+
     private void InitializeChartOptions()
     {
         this.PieChartOptions = new PieChartOptionsGenerator("Anzahl Antworten pro Frage").GetOptions();
@@ -91,8 +112,6 @@ public partial class Statistik : ComponentBase
         List<Modul> loadedModulesTask = await this.ModulRepository.GetAllAsync();
         List<Question> loadedQuestionsTask = await this.QuestionRepository.GetAllAsync();
 
-        this.PieChartData = await this.BasicLoader.LoadData();
-        this.BarChartData = await this.BarChartLoader.LoadData();
         this.ModuleList.AddRange(loadedModulesTask);
         this.QuestionList.AddRange(loadedQuestionsTask);
     }
@@ -107,27 +126,53 @@ public partial class Statistik : ComponentBase
 
     private async Task DetermineChartDataAsync()
     {
+        // ohne Filter (Typ 1 und 2) i.O
         if(this.SelectedModul.Id == 0 && this.SelectedQuestion.Id == 0)
         {
             this.PieChartData = await this.BasicLoader.LoadData();
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
-        else if(this.SelectedModul.Id != 0 && this.SelectedQuestion.Id == 0)
+        // Filterung nach Modul (Typ 1 und 2) i.O
+        else if(this.SelectedModul.Id != 0 && this.SelectedQuestion is { Id: 0, Type: (int) QuestionType.AuswahlFrage })
         {
             this.PieChartData = await this.FilterLoader.LoadData(this.SelectedModul);
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
-        else if(this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage)
+        // Filterung nach Frage ( Typ 1) i.O
+        else if(this.SelectedModul.Id == 0 && this.SelectedQuestion.Id != 0 && this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage)
         {
             this.PieChartData = await this.FilterLoader.LoadData(this.SelectedQuestion);
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
-        else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich)
+        // Filterung nach Modul und Frage (Typ 1)
+        else if(this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage && this.SelectedQuestion.Id != 0 && this.SelectedModul.Id != 0)
+        {
+            this.PieChartData = await this.FilterLoader.LoadData(this.SelectedQuestion, this.SelectedModul);
+            this.DisplayPieChart = true;
+            this.DisplayBarChart = false;
+        }        
+        // Filterung nach Frage und Modul (Typ 2)
+        else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich && this.SelectedQuestion is not { Id: 0 } && this.SelectedModul is not { Id: 0 })
+        {
+            this.BarChartData = await this.BarChartLoader.LoadData(this.SelectedQuestion, this.SelectedModul);
+            this.DisplayPieChart = false;
+            this.DisplayBarChart = true;
+        }
+        // Filterung nach Frage (Typ 2)
+        else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich && this.SelectedQuestion is not { Id: 0 })
         {
             this.BarChartData = await this.BarChartLoader.LoadData(this.SelectedQuestion);
+            this.DisplayPieChart = false;
+            this.DisplayBarChart = true;
+        }
+
+        // Filterung nach Frage (Typ 2)
+        else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich)
+        {
+            this.BarChartData = await this.BarChartLoader.LoadData();
             this.DisplayPieChart = false;
             this.DisplayBarChart = true;
         }

@@ -23,6 +23,18 @@ public class BarChartLoader : IBarChartLoader
     }
     #endregion
 
+    public async Task<ChartData> LoadData()
+    {
+        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+        ResponseRepository responseRepository = new ResponseRepository(context);
+
+        return new ChartData
+               {
+                   Labels = labels,
+                   Datasets = await GetDatasetWithStandartData(responseRepository)
+               };
+    }
+
     #region Publics
     public async Task<ChartData> LoadData(Question question)
     {
@@ -36,7 +48,7 @@ public class BarChartLoader : IBarChartLoader
                };
     }
 
-    public async Task<ChartData> LoadData()
+    public async Task<ChartData> LoadData(Question question, Modul modul)
     {
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
         ResponseRepository responseRepository = new(context);
@@ -44,13 +56,34 @@ public class BarChartLoader : IBarChartLoader
         return new ChartData
                {
                    Labels = labels,
-                   Datasets = await GetDatasetByQuestionType((int) QuestionType.Zahlenbereich, responseRepository)
+                   Datasets = await GetDatasetByQuestionAndModul(question, modul, responseRepository)
                };
     }
     #endregion
 
     #region Privates
+    private async Task<List<IChartDataset>> GetDatasetWithStandartData(ResponseRepository responseRepository)
+    {
+        List<double> answerCount = new();
+        List<IChartDataset> datasets = new();
 
+        for(int i = 1; i <= 10; i++)
+        {
+            int nCount = await responseRepository.GetResponseCountByQuestionTypeAndValue(i, (int) QuestionType.Zahlenbereich);
+            answerCount.Add(nCount);
+        }
+
+        datasets.Add(new BarChartDataset
+                     {
+                         Data = answerCount,
+                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
+                         BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
+                         BorderWidth = new List<double> { 0 }
+                     }
+                    );
+
+        return datasets;
+    }
 
     private async Task<List<IChartDataset>> GetDatasetByQuestionId(int questionId, ResponseRepository responseRepository)
     {
@@ -75,14 +108,14 @@ public class BarChartLoader : IBarChartLoader
         return datasets;
     }
 
-    private async Task<List<IChartDataset>> GetDatasetByQuestionType(int nType, ResponseRepository responseRepository)
+    private async Task<List<IChartDataset>> GetDatasetByQuestionAndModul(Question question, Modul modul, ResponseRepository responseRepository)
     {
         List<double> answerCount = new();
         List<IChartDataset> datasets = new();
 
         for(int i = 1; i <= 10; i++)
         {
-            int nCount = await responseRepository.GetResponseCountByQuestionTypeAndValue(i, nType);
+            int nCount = await responseRepository.GetResponseCountByQuesionIdAndModulIdAndValue(modul.Id, question.Id, i);
             answerCount.Add(nCount);
         }
 

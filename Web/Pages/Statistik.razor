@@ -4,7 +4,7 @@
 
 <h3 class="text-center">Umfragestatistik</h3>
 
-<br py-2 />
+<br py-2/>
 
 @if(ModuleList == null || ModuleList.Count == 0)
 {
@@ -18,42 +18,42 @@ else
             <!-- Modul Filter -->
             <Dropdown>
                 <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@SelectedModul?.Name</DropdownToggleButton>
-                    <DropdownMenu>
-                        @foreach(var m in ModuleList)
+                <DropdownMenu>
+                    @foreach(Modul m in ModuleList)
                     {
-                        <DropdownItem @onclick="() => SelectedModul = m" Type="ButtonType.Button">
+                        <DropdownItem @onclick="() => SetSelectedModul(m)" Type="ButtonType.Button">
                             @m.Name
                         </DropdownItem>
                     }
                 </DropdownMenu>
             </Dropdown>
 
-            <!-- Question Filter -->
             <Dropdown>
                 <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@SelectedQuestion?.Text</DropdownToggleButton>
-                    <DropdownMenu>
-                        @foreach(var q in QuestionList)
+                <DropdownMenu>
+                    @foreach(Question q in QuestionList)
                     {
-                        <DropdownItem @onclick="() => SelectedQuestion = q" Type="ButtonType.Button">
+                        <DropdownItem @onclick="() => SetSelectedQuestion(q)" Type="ButtonType.Button">
                             @q.Text
                         </DropdownItem>
                     }
                 </DropdownMenu>
             </Dropdown>
+
         </div>
     </div>
 
     <!-- Chart -->
     <div class="row justify-content-center my-5">
 
-            <!-- Pie Chart -->
-            <div id="pieChart" class="d-flex justify-content-center"  hidden="@(!DisplayPieChart)" >
-                <PieChart @ref="PieChart" Width="650" Class="mt-4" />
-            </div>
-        
-            <!-- Bar Chart -->
-            <div id="barChart" class="d-flex justify-content-center" hidden="@(!DisplayBarChart)">
-                <BarChart @ref="BarChart" Width="650" Class="mt-4"></BarChart>
-            </div>
+        <!-- Pie Chart -->
+        <div id="pieChart" class="d-flex justify-content-center" hidden="@(!DisplayPieChart)">
+            <PieChart @ref="PieChart" Width="650" Class="mt-4"/>
+        </div>
+
+        <!-- Bar Chart -->
+        <div id="barChart" class="d-flex justify-content-center" hidden="@(!DisplayBarChart)">
+            <BarChart @ref="BarChart" Width="650" Class="mt-4"></BarChart>
+        </div>
     </div>
 }

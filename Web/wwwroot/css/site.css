@@ -67,8 +67,16 @@ a, .btn-link {
 
 
 .dropdown-toggle {
-    max-width: 200px; /* Maximale Breite anpassen */
+    max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.hidden {
+    display: none;
+}
+
+.visible {
+    display: block;
 }
