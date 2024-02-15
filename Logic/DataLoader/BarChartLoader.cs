@@ -13,6 +13,7 @@ public class BarChartLoader : IBarChartLoader
 {
     #region Fields
     private readonly IDbContextFactory<UmfrageContext> _contextFactory;
+    private readonly List<string> labels = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
     #endregion
 
     #region Constructors
@@ -30,7 +31,7 @@ public class BarChartLoader : IBarChartLoader
 
         return new ChartData
                {
-                   Labels = FillLabelsFrom1To10(),
+                   Labels = labels,
                    Datasets = await GetDatasetByQuestionId(question.Id, responseRepository)
                };
     }
@@ -42,24 +43,14 @@ public class BarChartLoader : IBarChartLoader
 
         return new ChartData
                {
-                   Labels = FillLabelsFrom1To10(),
+                   Labels = labels,
                    Datasets = await GetDatasetByQuestionType((int) QuestionType.Zahlenbereich, responseRepository)
                };
     }
     #endregion
 
     #region Privates
-    private List<string> FillLabelsFrom1To10()
-    {
-        List<string> labels = new();
 
-        for(int i = 1; i <= 10; i++)
-        {
-            labels.Add(i.ToString());
-        }
-
-        return labels;
-    }
 
     private async Task<List<IChartDataset>> GetDatasetByQuestionId(int questionId, ResponseRepository responseRepository)
     {
@@ -68,15 +59,15 @@ public class BarChartLoader : IBarChartLoader
 
         for(int i = 1; i <= 10; i++)
         {
-            int nCount = await responseRepository.GetResponseCountByQuestionIdAndValue(questionId, (int) QuestionType.Zahlenbereich);
+            int nCount = await responseRepository.GetResponseCountByQuestionIdAndValue(questionId, i);
             answerCount.Add(nCount);
         }
 
         datasets.Add(new BarChartDataset
                      {
                          Data = answerCount,
-                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[0] },
-                         BorderColor = new List<string> { "FFFFFF" },
+                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
+                         BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
                          BorderWidth = new List<double> { 0 }
                      }
                     );
@@ -98,8 +89,8 @@ public class BarChartLoader : IBarChartLoader
         datasets.Add(new BarChartDataset
                      {
                          Data = answerCount,
-                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[0] },
-                         BorderColor = new List<string> { "FFFFFF" },
+                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
+                         BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
                          BorderWidth = new List<double> { 0 }
                      }
                     );
