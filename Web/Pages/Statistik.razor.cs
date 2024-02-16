@@ -35,6 +35,8 @@ public partial class Statistik : ComponentBase
     public bool DisplayPieChart { get; set; } = true;
     public bool DisplayBarChart { get; set; }
 
+    public IList<BlazorBootstrapChart>? ChartListeTest { get; set; }
+
     [Inject]
     public IBasicLoader BasicLoader { get; set; } = default!;
 
@@ -69,17 +71,17 @@ public partial class Statistik : ComponentBase
     #endregion
 
     #region Protecteds
-    protected override void OnInitialized() // 1
+    protected override void OnInitialized() 
     {
         InitializeChartOptions();
     }
 
-    protected override async Task OnInitializedAsync() // 2
+    protected override async Task OnInitializedAsync()
     {
         await LoadInitialDataAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender) // 3
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if(firstRender)
         {
@@ -153,7 +155,7 @@ public partial class Statistik : ComponentBase
             this.PieChartData = await this.FilterLoader.LoadData(this.SelectedQuestion, this.SelectedModul);
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
-        }        
+        }
         // Filterung nach Frage und Modul (Typ 2)
         else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich && this.SelectedQuestion is not { Id: 0 } && this.SelectedModul is not { Id: 0 })
         {
@@ -165,14 +167,6 @@ public partial class Statistik : ComponentBase
         else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich && this.SelectedQuestion is not { Id: 0 })
         {
             this.BarChartData = await this.BarChartLoader.LoadData(this.SelectedQuestion);
-            this.DisplayPieChart = false;
-            this.DisplayBarChart = true;
-        }
-
-        // Filterung nach Frage (Typ 2)
-        else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich)
-        {
-            this.BarChartData = await this.BarChartLoader.LoadData();
             this.DisplayPieChart = false;
             this.DisplayBarChart = true;
         }
