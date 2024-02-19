@@ -35,8 +35,6 @@ public partial class Statistik : ComponentBase
     public bool DisplayPieChart { get; set; } = true;
     public bool DisplayBarChart { get; set; }
 
-    public IList<BlazorBootstrapChart>? ChartListeTest { get; set; }
-
     [Inject]
     public IBasicLoader BasicLoader { get; set; } = default!;
 
@@ -71,7 +69,7 @@ public partial class Statistik : ComponentBase
     #endregion
 
     #region Protecteds
-    protected override void OnInitialized() 
+    protected override void OnInitialized()
     {
         InitializeChartOptions();
     }

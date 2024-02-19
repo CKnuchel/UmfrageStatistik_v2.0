@@ -1,50 +1,44 @@
 ﻿using BlazorBootstrap;
-using Data.Context;
-using Logic.Interfaces;
+using Common.ChartUtils;
 using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
 
 namespace Web.Pages;
 
 public partial class Semester : ComponentBase
 {
-    #region Fields
-    public List<string> test = new();
-    public List<BlazorBootstrapChart> chartList = new();
-
-    private PieChart testChart1 = new PieChart();
-    private PieChart testChart2 = new PieChart();
-    #endregion
-
     #region Properties
-    [Inject]
-    public IDbContextFactory<UmfrageContext> ContextFactory { get; set; } = default!;
-
-    [Inject]
-    private IBasicLoader BasicLoader { get; set; } = default!;
+    public BarChart BarChart { get; set; } = new();
+    public BarChartOptions BarChartOptions { get; set; } = new();
+    public ChartData BarChartData { get; set; } = new();
     #endregion
 
     #region Protecteds
     protected override void OnInitialized()
     {
-        for(int i = 1; i <= 20; i++)
-        {
-            test.Add($"Ich bin die {i}. Zahl in der Liste.");
-        }
+        InitializeChartOptions();
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        await AddTestCharts();
+        return base.OnInitializedAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        return base.OnAfterRenderAsync(firstRender);
     }
     #endregion
 
     #region Privates
-    private async Task AddTestCharts()
+    private void InitializeChartOptions()
     {
-        // https://docs.blazorbootstrap.com/data-visualization/pie-chart Beispiel mit daten hinzufügen umdiese allenfalls später zu laden
+        this.BarChartOptions = new BarChartOptionsGenerator("x", "Fragen", "Anzahl Antworten").GetOptions();
+    }
 
-        throw new NotImplementedException();
+    private async Task LoadInitialDataAsync()
+    {
+        // TODO Allenfalls Filter Listen
+        // TODO Semster Loader From BarChart Loader
     }
     #endregion
 }

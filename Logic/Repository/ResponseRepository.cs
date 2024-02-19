@@ -8,6 +8,13 @@ namespace Logic.Repository;
 public class ResponseRepository : IRepository<Response>
 {
     #region Fields
+    // Definiere Konstanten für die Semesterdaten
+    private static readonly Dictionary<int, (int startMonth, int startDay, int endMonth, int endDay)> SemesterDates = new Dictionary<int, (int, int, int, int)>
+                                                                                                                      {
+                                                                                                                          { 1, (8, 1, 1, 31) }, // 1. Semester von 1. August bis 31. Januar
+                                                                                                                          { 2, (2, 1, 7, 31) } // 2. Semester von 1. Februar bis 31. Juli
+                                                                                                                      };
+
     private readonly UmfrageContext _context;
     #endregion
 
@@ -65,25 +72,24 @@ public class ResponseRepository : IRepository<Response>
     }
 
     /// <summary>
-    /// Ermoeglicht das suchen nach Antworten zu einem spezifischen Semester und Jahr
+    /// Ermöglicht das Suchen nach Antworten zu einem spezifischen Semester und Jahr
     /// </summary>
-    /// <param name="semester">Definieren des gewuenschten Semester 1 -> 1.Semester, 2 -> 2.Semester</param>
+    /// <param name="semester">Definieren des gewünschten Semesters 1 -> 1.Semester, 2 -> 2.Semester</param>
     /// <param name="year">Definieren des Jahres als int</param>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     /// <returns>Eine Liste mit allen Responses, welche den Filterkriterien entsprechen</returns>
     public async Task<List<Response>> GetBySemesterAndYear(int semester, int year)
     {
-        if(semester < 1 || semester > 2) throw new ArgumentOutOfRangeException();
-        if(year > DateTime.Now.Year) throw new ArgumentOutOfRangeException();
+        if(semester < 1 || semester > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
+        if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");
 
-        if(semester == 1)
-        {
-            return await (_context.Responses ?? throw new InvalidOperationException()).Where(r => r.ResponseDate >= new DateTime(year, 8, 1) && r.ResponseDate <= new DateTime(year + 1, 1, 31))
-                                                                                      .ToListAsync(cancellationToken: CancellationToken.None);
-        }
+        (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
+        DateTime startDate = new DateTime(year, startMonth, startDay);
+        DateTime endDate = semester == 1 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
 
-        return await (_context.Responses ?? throw new InvalidOperationException()).Where(r => r.ResponseDate >= new DateTime(year, 2, 1) && r.ResponseDate <= new DateTime(year, 7, 31))
-                                                                                  .ToListAsync(cancellationToken: CancellationToken.None);
+        return await (_context.Responses ?? throw new InvalidOperationException())
+                     .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate)
+                     .ToListAsync(cancellationToken: CancellationToken.None);
     }
     #endregion
 }
