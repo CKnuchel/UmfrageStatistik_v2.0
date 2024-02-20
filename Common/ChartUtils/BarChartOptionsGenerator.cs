@@ -23,6 +23,7 @@ public class BarChartOptionsGenerator
         if(yTitle.IsNullOrEmpty()) throw new ArgumentNullException(nameof(yTitle));
 
         CreateDefaultChartOptions();
+
         options!.IndexAxis = indexAxis.ToLower();
         options.Scales.X!.Title!.Text = xTitle;
         options.Scales.Y!.Title!.Text = yTitle;
