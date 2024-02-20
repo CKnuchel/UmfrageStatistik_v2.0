@@ -63,6 +63,26 @@ public class BarChartLoader : IBarChartLoader
                    Datasets = await GetDatasetByQuestionAndModul(question, modul, responseRepository)
                };
     }
+
+    public async Task<ChartData> LoadSemesterData()
+    {
+        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+        ResponseRepository responseRepository = new(context);
+
+        // TODO Semester Daten laden
+        throw new NotImplementedException();
+    }
+
+    public async Task<ChartData> LoadSemesterDataByModul(Modul modul)
+    {
+        if(modul == null) throw new ArgumentNullException(nameof(modul));
+
+        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+        ResponseRepository responseRepository = new(context);
+
+        // TODO Semester Daten mit Modul Filter laden
+        throw new NotImplementedException();
+    }
     #endregion
 
     #region Privates
