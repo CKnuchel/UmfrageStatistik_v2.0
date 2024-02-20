@@ -83,7 +83,7 @@ public partial class Semester : ComponentBase
         this.ModuleList.AddRange(await this.ModulRepository.GetAllAsync());
     }
 
-    private Task DetermineChartDataAsync()
+    private async Task DetermineChartDataAsync()
     {
         // ohne Filter
         if(this.SelectedModul.Id == 0)
