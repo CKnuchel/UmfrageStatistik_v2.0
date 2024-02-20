@@ -75,6 +75,7 @@ public class BarChartLoader : IBarChartLoader
 
         datasets.Add(new BarChartDataset
                      {
+                         Label = "Erhaltene Antworten",
                          Data = answerCount,
                          BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
                          BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
@@ -98,6 +99,7 @@ public class BarChartLoader : IBarChartLoader
 
         datasets.Add(new BarChartDataset
                      {
+                         Label = "Erhaltene Antworten",
                          Data = answerCount,
                          BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
                          BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
@@ -121,6 +123,7 @@ public class BarChartLoader : IBarChartLoader
 
         datasets.Add(new BarChartDataset
                      {
+                         Label = "Erhaltene Antowrten",
                          Data = answerCount,
                          BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
                          BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
