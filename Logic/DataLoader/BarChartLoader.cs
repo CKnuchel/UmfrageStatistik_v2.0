@@ -31,7 +31,7 @@ public class BarChartLoader : IBarChartLoader
     public async Task<ChartData> LoadData()
     {
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-        ResponseRepository responseRepository = new ResponseRepository(context);
+        ResponseRepository responseRepository = new(context);
 
         return new ChartData
                {
