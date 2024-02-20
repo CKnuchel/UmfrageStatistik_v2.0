@@ -7,14 +7,15 @@ namespace Logic.Repository;
 
 public class ResponseRepository : IRepository<Response>
 {
-    #region Fields
-    // Definiere Konstanten für die Semesterdaten
-    private static readonly Dictionary<int, (int startMonth, int startDay, int endMonth, int endDay)> SemesterDates = new Dictionary<int, (int, int, int, int)>
+    #region Constants
+    private static readonly Dictionary<int, (int startMonth, int startDay, int endMonth, int endDay)> SemesterDates = new()
                                                                                                                       {
                                                                                                                           { 1, (8, 1, 1, 31) }, // 1. Semester von 1. August bis 31. Januar
                                                                                                                           { 2, (2, 1, 7, 31) } // 2. Semester von 1. Februar bis 31. Juli
                                                                                                                       };
+    #endregion
 
+    #region Fields
     private readonly UmfrageContext _context;
     #endregion
 
@@ -80,11 +81,11 @@ public class ResponseRepository : IRepository<Response>
     /// <returns>Eine Liste mit allen Responses, welche den Filterkriterien entsprechen</returns>
     public async Task<List<Response>> GetBySemesterAndYear(int semester, int year)
     {
-        if(semester < 1 || semester > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
+        if(semester is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
         if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");
 
         (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
-        DateTime startDate = new DateTime(year, startMonth, startDay);
+        DateTime startDate = new(year, startMonth, startDay);
         DateTime endDate = semester == 1 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
 
         return await (_context.Responses ?? throw new InvalidOperationException())
