@@ -1,4 +1,5 @@
 ﻿using BlazorBootstrap;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Common.ChartUtils;
 
@@ -17,6 +18,10 @@ public class BarChartOptionsGenerator
     /// <param name="yTitle">Titel der Y-Achse</param>
     public BarChartOptionsGenerator(string indexAxis, string xTitle, string yTitle)
     {
+        if(indexAxis.IsNullOrEmpty()) throw new ArgumentNullException(nameof(indexAxis));
+        if(xTitle.IsNullOrEmpty()) throw new ArgumentNullException(nameof(xTitle));
+        if(yTitle.IsNullOrEmpty()) throw new ArgumentNullException(nameof(yTitle));
+
         CreateDefaultChartOptions();
         options!.IndexAxis = indexAxis.ToLower();
         options.Scales.X!.Title!.Text = xTitle;
