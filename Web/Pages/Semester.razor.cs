@@ -37,9 +37,9 @@ public partial class Semester : ComponentBase
         InitializeChartOptions();
     }
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        return base.OnInitializedAsync();
+        await LoadInitialDataAsync();
     }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
@@ -58,7 +58,7 @@ public partial class Semester : ComponentBase
 
     private void InitializeChartOptions()
     {
-        this.BarChartOptions = new BarChartOptionsGenerator("x", "Fragen", "Anzahl Antworten").GetOptions();
+        this.BarChartOptions = new BarChartOptionsGenerator("y", "Anzahl Antworten", "Semester").GetOptions();
     }
 
     private async Task LoadInitialDataAsync()
@@ -67,6 +67,7 @@ public partial class Semester : ComponentBase
         this.ModuleList.Add(DefaultModul);
         List<Modul> loadedModulesTask = await this.ModulRepository.GetAllAsync();
         this.ModuleList.AddRange(loadedModulesTask);
+
         // TODO Semster Loader From BarChart Loader
     }
     #endregion
