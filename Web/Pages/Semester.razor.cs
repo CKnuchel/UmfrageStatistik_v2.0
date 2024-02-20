@@ -12,6 +12,10 @@ public partial class Semester : ComponentBase
     private static readonly Modul DefaultModul = new() { Id = 0, Name = "Alle Module" };
     #endregion
 
+    #region Fields
+    private bool IsBarChartInitialized;
+    #endregion
+
     #region Properties
     public Modul SelectedModul { get; set; } = DefaultModul;
     public List<Modul> ModuleList { get; set; } = new();
@@ -42,17 +46,28 @@ public partial class Semester : ComponentBase
         await LoadInitialDataAsync();
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        return base.OnAfterRenderAsync(firstRender);
+        if(firstRender)
+        {
+            await InitializeChartsAsync();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
     #endregion
 
     #region Privates
+    private async Task InitializeChartsAsync()
+    {
+        await DetermineChartDataAsync();
+        await UpdateDisplayedChartsAsync();
+    }
+
     private async Task LoadDataBasedOnSelectionAsync()
     {
-        //await DetermineChartDataAsync();
-        //await UpdateDisplayedChartsAsync();
+        await DetermineChartDataAsync();
+        await UpdateDisplayedChartsAsync();
         StateHasChanged();
     }
 
@@ -65,10 +80,37 @@ public partial class Semester : ComponentBase
     {
         // Modul Filter laden
         this.ModuleList.Add(DefaultModul);
-        List<Modul> loadedModulesTask = await this.ModulRepository.GetAllAsync();
-        this.ModuleList.AddRange(loadedModulesTask);
+        this.ModuleList.AddRange(await this.ModulRepository.GetAllAsync());
+    }
 
-        // TODO Semster Loader From BarChart Loader
+    private Task DetermineChartDataAsync()
+    {
+        // ohne Filter
+        if(this.SelectedModul.Id == 0)
+        {
+            //TODO Loader erstellen
+            //this.BarChartData = await this.SemesterLoader();
+        }
+        // Filterung nach Modul
+        else
+        {
+            throw new NotImplementedException();
+            //TODO Loader einbauen
+            //this.BarChartData = await this.SemesterLoader();
+        }
+    }
+
+    private async Task UpdateDisplayedChartsAsync()
+    {
+        if(!IsBarChartInitialized)
+        {
+            await this.BarChart.InitializeAsync(this.BarChartData, this.BarChartOptions);
+            IsBarChartInitialized = true;
+        }
+        else
+        {
+            await this.BarChart.UpdateAsync(this.BarChartData, this.BarChartOptions);
+        }
     }
     #endregion
 }
