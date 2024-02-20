@@ -69,6 +69,12 @@ public class BarChartLoader : IBarChartLoader
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
         ResponseRepository responseRepository = new(context);
 
+        return new ChartData
+               {
+                   Labels = labels,
+                   Datasets = null
+               };
+
         // TODO Semester Daten laden
         throw new NotImplementedException();
     }
@@ -79,6 +85,12 @@ public class BarChartLoader : IBarChartLoader
 
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
         ResponseRepository responseRepository = new(context);
+
+        return new ChartData
+               {
+                   Labels = labels,
+                   Datasets = null
+               };
 
         // TODO Semester Daten mit Modul Filter laden
         throw new NotImplementedException();
