@@ -11,10 +11,6 @@ namespace Logic.DataLoader
 {
     public class BarChartLoader : IBarChartLoader
     {
-        #region Constants
-        private const string LABEL_TOOLTIP = "Erhaltene Antworten";
-        #endregion
-
         #region Fields
         private readonly IDbContextFactory<UmfrageContext> _contextFactory;
         private readonly List<string> labels = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
@@ -83,7 +79,7 @@ namespace Logic.DataLoader
 
             datasets.Add(new BarChartDataset
                          {
-                             Label = LABEL_TOOLTIP,
+                             Label = "Erhaltene Antworten",
                              Data = answerCount,
                              BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
                              BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
