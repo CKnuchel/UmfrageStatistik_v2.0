@@ -5,7 +5,6 @@ namespace Logic.Interfaces;
 
 public interface IBarChartLoader
 {
-    public Task<ChartData> LoadData();
-    public Task<ChartData> LoadData(Question question);
-    public Task<ChartData> LoadData(Question question, Modul modul);
+    // Optionale Parameter
+    Task<ChartData> LoadData(Question question = null, Modul modul = null);
 }

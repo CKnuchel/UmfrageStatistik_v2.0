@@ -7,167 +7,91 @@ using Logic.Interfaces;
 using Logic.Repository;
 using Microsoft.EntityFrameworkCore;
 
-namespace Logic.DataLoader;
-
-public class BarChartLoader : IBarChartLoader
+namespace Logic.DataLoader
 {
-    #region Constants
-    private const string LABEL_TOOLTIP = "Erhaltene Antworten";
-    #endregion
-
-    #region Fields
-    private readonly IDbContextFactory<UmfrageContext> _contextFactory;
-    private readonly List<string> labels = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
-    #endregion
-
-    #region Constructors
-    public BarChartLoader(IDbContextFactory<UmfrageContext> contextFactory)
+    public class BarChartLoader : IBarChartLoader
     {
-        _contextFactory = contextFactory;
-    }
-    #endregion
+        #region Constants
+        private const string LABEL_TOOLTIP = "Erhaltene Antworten";
+        #endregion
 
-    #region Publics
-    public async Task<ChartData> LoadData()
-    {
-        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-        ResponseRepository responseRepository = new(context);
+        #region Fields
+        private readonly IDbContextFactory<UmfrageContext> _contextFactory;
+        private readonly List<string> labels = new() { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+        #endregion
 
-        return new ChartData
-               {
-                   Labels = labels,
-                   Datasets = await GetDatasetWithStandartData(responseRepository)
-               };
-    }
-
-    public async Task<ChartData> LoadData(Question question)
-    {
-        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-        ResponseRepository responseRepository = new(context);
-
-        return new ChartData
-               {
-                   Labels = labels,
-                   Datasets = await GetDatasetByQuestionId(question.Id, responseRepository)
-               };
-    }
-
-    public async Task<ChartData> LoadData(Question question, Modul modul)
-    {
-        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-        ResponseRepository responseRepository = new(context);
-
-        return new ChartData
-               {
-                   Labels = labels,
-                   Datasets = await GetDatasetByQuestionAndModul(question, modul, responseRepository)
-               };
-    }
-
-    public async Task<ChartData> LoadSemesterData()
-    {
-        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-        ResponseRepository responseRepository = new(context);
-
-        // TODO Semester Daten laden
-        throw new NotImplementedException();
-
-        return new ChartData
-               {
-                   Labels = labels,
-                   Datasets = null
-               };
-    }
-
-    public async Task<ChartData> LoadSemesterDataByModul(Modul modul)
-    {
-        if(modul == null) throw new ArgumentNullException(nameof(modul));
-
-        await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-        ResponseRepository responseRepository = new(context);
-
-        // TODO Semester Daten mit Modul Filter laden
-        throw new NotImplementedException();
-
-        return new ChartData
-               {
-                   Labels = labels,
-                   Datasets = null
-               };
-    }
-    #endregion
-
-    #region Privates
-    private async Task<List<IChartDataset>> GetDatasetWithStandartData(ResponseRepository responseRepository)
-    {
-        List<double> answerCount = new();
-        List<IChartDataset> datasets = new();
-
-        for(int i = 1; i <= 10; i++)
+        #region Constructors
+        public BarChartLoader(IDbContextFactory<UmfrageContext> contextFactory)
         {
-            int nCount = await responseRepository.GetResponseCountByQuestionTypeAndValue(i, (int) QuestionType.Zahlenbereich);
-            answerCount.Add(nCount);
+            _contextFactory = contextFactory;
+        }
+        #endregion
+
+        #region Publics
+        public async Task<ChartData> LoadData(Question question = null, Modul modul = null)
+        {
+            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
+            ResponseRepository responseRepository = new ResponseRepository(context);
+
+            // Auswahl des Ladeprozesses basierend auf den Uebergabeparametern
+            List<IChartDataset> datasets = question == null
+                ? await GetDatasetWithStandardData(responseRepository)
+                : await GetDatasetByParameters(responseRepository, question, modul);
+
+            return new ChartData
+                   {
+                       Labels = labels,
+                       Datasets = datasets
+                   };
+        }
+        #endregion
+
+        #region Privates
+        private async Task<List<IChartDataset>> GetDatasetWithStandardData(ResponseRepository repository)
+        {
+            return await GenericDatasetFetch(repository);
         }
 
-        datasets.Add(new BarChartDataset
-                     {
-                         Label = LABEL_TOOLTIP,
-                         Data = answerCount,
-                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
-                         BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
-                         BorderWidth = new List<double> { 0 }
-                     }
-                    );
-
-        return datasets;
-    }
-
-    private async Task<List<IChartDataset>> GetDatasetByQuestionId(int questionId, ResponseRepository responseRepository)
-    {
-        List<double> answerCount = new();
-        List<IChartDataset> datasets = new();
-
-        for(int i = 1; i <= 10; i++)
+        private async Task<List<IChartDataset>> GetDatasetByParameters(ResponseRepository repository, Question question, Modul modul)
         {
-            int nCount = await responseRepository.GetResponseCountByQuestionIdAndValue(questionId, i);
-            answerCount.Add(nCount);
+            return await GenericDatasetFetch(repository, question, modul);
         }
 
-        datasets.Add(new BarChartDataset
-                     {
-                         Label = LABEL_TOOLTIP,
-                         Data = answerCount,
-                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
-                         BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
-                         BorderWidth = new List<double> { 0 }
-                     }
-                    );
-
-        return datasets;
-    }
-
-    private async Task<List<IChartDataset>> GetDatasetByQuestionAndModul(Question question, Modul modul, ResponseRepository responseRepository)
-    {
-        List<double> answerCount = new();
-        List<IChartDataset> datasets = new();
-
-        for(int i = 1; i <= 10; i++)
+        private async Task<List<IChartDataset>> GenericDatasetFetch(ResponseRepository repository, Question question = null, Modul modul = null)
         {
-            int nCount = await responseRepository.GetResponseCountByQuesionIdAndModulIdAndValue(modul.Id, question.Id, i);
-            answerCount.Add(nCount);
+            List<IChartDataset> datasets = new List<IChartDataset>();
+            List<double> answerCount = new List<double>();
+
+            for(int i = 1; i <= 10; i++)
+            {
+                int nCount;
+                if(question == null)
+                {
+                    nCount = await repository.GetResponseCountByQuestionTypeAndValue(i, (int) QuestionType.Zahlenbereich);
+                }
+                else if(modul == null)
+                {
+                    nCount = await repository.GetResponseCountByQuestionIdAndValue(question.Id, i);
+                }
+                else
+                {
+                    nCount = await repository.GetResponseCountByQuesionIdAndModulIdAndValue(modul.Id, question.Id, i);
+                }
+
+                answerCount.Add(nCount);
+            }
+
+            datasets.Add(new BarChartDataset
+                         {
+                             Label = LABEL_TOOLTIP,
+                             Data = answerCount,
+                             BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
+                             BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
+                             BorderWidth = new List<double> { 0 }
+                         });
+
+            return datasets;
         }
-
-        datasets.Add(new BarChartDataset
-                     {
-                         Label = LABEL_TOOLTIP,
-                         Data = answerCount,
-                         BackgroundColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
-                         BorderColor = new List<string> { ColorGenerator.CategoricalTwentyColors()[1] },
-                         BorderWidth = new List<double> { 0 }
-                     }
-                    );
-
-        return datasets;
+        #endregion
     }
-    #endregion
 }
