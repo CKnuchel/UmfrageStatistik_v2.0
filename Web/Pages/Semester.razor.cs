@@ -13,7 +13,6 @@ public partial class Semester : ComponentBase
     #endregion
 
     #region Fields
-    private List<int> availableYears = new List<int>();
     private bool IsBarChartInitialized;
     #endregion
 
@@ -77,8 +76,12 @@ public partial class Semester : ComponentBase
 
     private void InitializeChartOptions()
     {
-        this.BarChartOptions = new BarChartOptionsGenerator("y", "Anzahl Antworten", String.Empty, true).GetOptions();
+        this.BarChartOptions = new BarChartOptionsGenerator("y", "Anzahl Antworten", string.Empty, true).GetOptions();
+        this.BarChartOptions.Plugins.Title!.Text = "Semesterentwicklung";
+        this.BarChartOptions.Plugins.Title!.Font!.Size = 24;
+        this.BarChartOptions.Plugins.Title.Display = true;
         this.BarChartOptions.Plugins.Legend.Display = true;
+        this.BarChartOptions.Plugins.Legend.Align = "left";
         this.BarChartOptions.Plugins.Legend.Position = "bottom";
     }
 
@@ -87,13 +90,14 @@ public partial class Semester : ComponentBase
         // Modul Filter laden
         this.ModuleList.Add(DefaultModul);
         this.ModuleList.AddRange(await this.ModulRepository.GetAllAsync());
-
-        // Anzeigen der Möglichen Jahre
-        availableYears = await this.SemesterLoader.GetAvailableYears();
     }
 
     private async Task DetermineChartDataAsync()
     {
+        this.BarChartData.Labels?.Clear();
+        this.BarChartData.Datasets?.Clear();
+
+
         // ohne Filter
         if(this.SelectedModul.Id == 0)
         {

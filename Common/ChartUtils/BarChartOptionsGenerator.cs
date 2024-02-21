@@ -50,10 +50,10 @@ public class BarChartOptionsGenerator
                       Interaction = new Interaction { Mode = InteractionMode.X },
                   };
 
-        options.Scales.X!.Title!.Font!.Size = 24;
+        options.Scales.X!.Title!.Font!.Size = 18;
         options.Scales.X!.Title!.Display = true;
 
-        options.Scales.Y!.Title!.Font!.Size = 24;
+        options.Scales.Y!.Title!.Font!.Size = 18;
         options.Scales.Y!.Title!.Display = true;
 
         options.Plugins.Legend.Display = false;
