@@ -20,6 +20,7 @@ builder.Services.AddScoped<IRepository<Response>, ResponseRepository>();
 builder.Services.AddScoped<IBasicLoader, StandardLoader>();
 builder.Services.AddScoped<IFilterLoader, FilteredLoader>();
 builder.Services.AddScoped<IBarChartLoader, BarChartLoader>();
+builder.Services.AddScoped<ISemesterLoader, SemesterLoader>();
 
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); // Auslesen der Verbindung aus dem appsettings.json
 
@@ -29,10 +30,7 @@ builder.Services.AddDbContext<UmfrageContext>(options => // Hinzufügen von unser
                                                   options.UseSqlServer(connectionString); // Definieren der Verbindung fuer zum SQL Server
                                               });
 
-builder.Services.AddDbContextFactory<UmfrageContext>(options =>
-                                                     {
-                                                         options.UseSqlServer(connectionString);
-                                                     }, ServiceLifetime.Scoped);
+builder.Services.AddDbContextFactory<UmfrageContext>(options => { options.UseSqlServer(connectionString); }, ServiceLifetime.Scoped);
 
 WebApplication app = builder.Build();
 

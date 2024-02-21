@@ -20,6 +20,19 @@
     </div>
 </div>
 
+<!-- Für Testzwecke -->
+<br/>
+
+<div class="row justify-content-center">
+    <p> Es sind folgende Jahre in der Datenbank vorhanden:</p>
+    <ul>
+        @foreach(int year in availableYears)
+        {
+            <li>@year</li>
+        }
+    </ul>
+</div>
+
 <!-- Chart -->
 <div class="row justify-content-center my-5">
 

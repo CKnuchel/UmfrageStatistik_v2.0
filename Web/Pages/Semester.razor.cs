@@ -13,6 +13,7 @@ public partial class Semester : ComponentBase
     #endregion
 
     #region Fields
+    private List<int> availableYears = new List<int>();
     private bool IsBarChartInitialized;
     #endregion
 
@@ -25,6 +26,9 @@ public partial class Semester : ComponentBase
 
     [Inject]
     public IRepository<Modul> ModulRepository { get; set; } = default!;
+
+    [Inject]
+    private ISemesterLoader SemesterLoader { get; set; } = default!;
     #endregion
 
     #region Publics
@@ -81,6 +85,9 @@ public partial class Semester : ComponentBase
         // Modul Filter laden
         this.ModuleList.Add(DefaultModul);
         this.ModuleList.AddRange(await this.ModulRepository.GetAllAsync());
+
+        // Anzeigen der Möglichen Jahre
+        availableYears = await this.SemesterLoader.GetAvailableYears();
     }
 
     private async Task DetermineChartDataAsync()
