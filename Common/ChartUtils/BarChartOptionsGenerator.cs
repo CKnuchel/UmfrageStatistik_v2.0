@@ -16,17 +16,21 @@ public class BarChartOptionsGenerator
     /// <param name="indexAxis">x = vertikal, y = Horizontal</param>
     /// <param name="xTitle">Titel der X-Achse</param>
     /// <param name="yTitle">Titel der Y-Achse</param>
-    public BarChartOptionsGenerator(string indexAxis, string xTitle, string yTitle)
+    public BarChartOptionsGenerator(string indexAxis, string xTitle, string yTitle, bool stacked = false)
     {
         if(indexAxis.IsNullOrEmpty()) throw new ArgumentNullException(nameof(indexAxis));
-        if(xTitle.IsNullOrEmpty()) throw new ArgumentNullException(nameof(xTitle));
-        if(yTitle.IsNullOrEmpty()) throw new ArgumentNullException(nameof(yTitle));
 
         CreateDefaultChartOptions();
+
+        if(indexAxis.Contains('x')) options.Interaction = new Interaction { Mode = InteractionMode.X };
+        if(indexAxis.Contains('y')) options.Interaction = new Interaction { Mode = InteractionMode.Y };
 
         options!.IndexAxis = indexAxis.ToLower();
         options.Scales.X!.Title!.Text = xTitle;
         options.Scales.Y!.Title!.Text = yTitle;
+
+        options.Scales.X.Stacked = stacked;
+        options.Scales.Y.Stacked = stacked;
     }
     #endregion
 

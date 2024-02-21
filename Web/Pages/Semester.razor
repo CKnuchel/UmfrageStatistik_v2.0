@@ -2,43 +2,36 @@
 
 <h2>Semesterentwicklung</h2>
 
-<div class="row justify-content-center">
+@if(ModuleList != null)
+{
+    <div class="row justify-content-center">
 
-    <div class="col-md-3 d-flex justify-content-between align-items-center">
-        <!-- Modul Filter -->
-        <Dropdown>
-            <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@SelectedModul?.Name</DropdownToggleButton>
-            <DropdownMenu>
-                @foreach(Modul m in ModuleList)
-                {
-                    <DropdownItem @onclick="() => SetSelectedModul(m)" Type="ButtonType.Button">
-                        @m.Name
-                    </DropdownItem>
-                }
-            </DropdownMenu>
-        </Dropdown>
+        <div class="col-md-3 d-flex justify-content-between align-items-center">
+            <!-- Modul Filter -->
+            <Dropdown>
+                <DropdownToggleButton Class="dropdown-toggle" Color="ButtonColor.Primary">@SelectedModul?.Name</DropdownToggleButton>
+                <DropdownMenu>
+                    @foreach(Modul m in ModuleList)
+                    {
+                        <DropdownItem @onclick="() => SetSelectedModul(m)" Type="ButtonType.Button">
+                            @m.Name
+                        </DropdownItem>
+                    }
+                </DropdownMenu>
+            </Dropdown>
+        </div>
     </div>
-</div>
+}
 
-<!-- Für Testzwecke -->
-<br/>
+@if(BarChart != null)
+{
+    <!-- Chart -->
+    <div class="row justify-content-center my-5">
 
-<div class="row justify-content-center">
-    <p> Es sind folgende Jahre in der Datenbank vorhanden:</p>
-    <ul>
-        @foreach(int year in availableYears)
-        {
-            <li>@year</li>
-        }
-    </ul>
-</div>
+        <!-- Bar Chart -->
+        <div id="barChart" class="d-flex justify-content-center">
+            <BarChart @ref="BarChart" Width="900" Height="1800" Class="mt-4"/>
+        </div>
 
-<!-- Chart -->
-<div class="row justify-content-center my-5">
-
-    <!-- Bar Chart -->
-    <div id="barChart" class="d-flex justify-content-center">
-        <BarChart @ref="BarChart" Width="750" Class="mt-4"/>
     </div>
-
-</div>
+}

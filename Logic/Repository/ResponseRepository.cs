@@ -81,7 +81,7 @@ public class ResponseRepository : IRepository<Response>
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException">Bei Fehlerhaften Angaben (ausserhalb des erlaubten Bereich)</exception>
     /// <exception cref="InvalidOperationException">Kein Kontext oder Tabelle gefunden</exception>
-    public async Task<int> GetResponseCountByQuestionIdSemesterAndYear(int semester, int year, int questionId)
+    public async Task<int> GetResponseCountByQuestionIdAndSemesterAndYear(int semester, int year, int questionId)
     {
         if(semester is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
         if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");

@@ -77,7 +77,9 @@ public partial class Semester : ComponentBase
 
     private void InitializeChartOptions()
     {
-        this.BarChartOptions = new BarChartOptionsGenerator("y", "Anzahl Antworten", "Semester").GetOptions();
+        this.BarChartOptions = new BarChartOptionsGenerator("y", "Anzahl Antworten", String.Empty, true).GetOptions();
+        this.BarChartOptions.Plugins.Legend.Display = true;
+        this.BarChartOptions.Plugins.Legend.Position = "bottom";
     }
 
     private async Task LoadInitialDataAsync()
@@ -95,8 +97,7 @@ public partial class Semester : ComponentBase
         // ohne Filter
         if(this.SelectedModul.Id == 0)
         {
-            //TODO Loader erstellen
-            //this.BarChartData = await this.SemesterLoader();
+            this.BarChartData = await this.SemesterLoader.LoadData();
         }
         // Filterung nach Modul
         else
