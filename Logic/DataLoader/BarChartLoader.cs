@@ -47,17 +47,17 @@ namespace Logic.DataLoader
         #endregion
 
         #region Privates
-        private async Task<List<IChartDataset>> GetDatasetWithStandardData(ResponseRepository repository)
+        private static async Task<List<IChartDataset>> GetDatasetWithStandardData(ResponseRepository repository)
         {
             return await GenericDatasetFetch(repository);
         }
 
-        private async Task<List<IChartDataset>> GetDatasetByParameters(ResponseRepository repository, Question question, Modul modul)
+        private static async Task<List<IChartDataset>> GetDatasetByParameters(ResponseRepository repository, Question question, Modul modul)
         {
             return await GenericDatasetFetch(repository, question, modul);
         }
 
-        private async Task<List<IChartDataset>> GenericDatasetFetch(ResponseRepository repository, Question? question = null, Modul? modul = null)
+        private static async Task<List<IChartDataset>> GenericDatasetFetch(ResponseRepository repository, Question? question = null, Modul? modul = null)
         {
             List<IChartDataset> datasets = new();
             List<double> answerCount = new();
