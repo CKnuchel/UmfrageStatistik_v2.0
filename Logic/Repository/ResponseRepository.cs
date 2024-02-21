@@ -92,5 +92,10 @@ public class ResponseRepository : IRepository<Response>
                      .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate)
                      .ToListAsync(cancellationToken: CancellationToken.None);
     }
+
+    public async Task<List<int>> GetAvailableYearsFromResponses()
+    {
+        return await (_context.Responses ?? throw new InvalidOperationException()).Select(r => r.ResponseDate.Year).Distinct().ToListAsync(cancellationToken: CancellationToken.None);
+    }
     #endregion
 }
