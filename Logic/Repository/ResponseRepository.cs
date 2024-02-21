@@ -73,13 +73,15 @@ public class ResponseRepository : IRepository<Response>
     }
 
     /// <summary>
-    /// Ermöglicht das Suchen nach Antworten zu einem spezifischen Semester und Jahr
+    /// Ermittelt die Anzahl Antworten für eine Frage, bezogen auf das Semester und Jahr
     /// </summary>
-    /// <param name="semester">Definieren des gewünschten Semesters 1 -> 1.Semester, 2 -> 2.Semester</param>
-    /// <param name="year">Definieren des Jahres als int</param>
-    /// <exception cref="ArgumentOutOfRangeException"></exception>
-    /// <returns>Eine Liste mit allen Responses, welche den Filterkriterien entsprechen</returns>
-    public async Task<List<Response>> GetBySemesterAndYear(int semester, int year)
+    /// <param name="semester"> 1 = erstes Semester, 2 = zweites Semester</param>
+    /// <param name="year">Das Jahr, welches für die Abfrage relevant ist</param>
+    /// <param name="questionId">Zu welcher Frage die Daten geladen werden sollen</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException">Bei Fehlerhaften Angaben (ausserhalb des erlaubten Bereich)</exception>
+    /// <exception cref="InvalidOperationException">Kein Kontext oder Tabelle gefunden</exception>
+    public async Task<int> GetResponseCountByQuestionIdSemesterAndYear(int semester, int year, int questionId)
     {
         if(semester is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
         if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");
@@ -89,8 +91,32 @@ public class ResponseRepository : IRepository<Response>
         DateTime endDate = semester == 1 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
 
         return await (_context.Responses ?? throw new InvalidOperationException())
-                     .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate)
-                     .ToListAsync(cancellationToken: CancellationToken.None);
+                     .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.Answer.QuestionId == questionId)
+                     .CountAsync();
+    }
+
+    /// <summary>
+    /// Ermittelt die Anzahl Antworten für eine Frage, bezogen auf das Semester, Jahr und Modul
+    /// </summary>
+    /// <param name="semester"> 1 = erstes Semester, 2 = zweites Semester</param>
+    /// <param name="year">Das Jahr, welches für die Abfrage relevant ist</param>
+    /// <param name="questionId">Zu welcher Frage die Daten geladen werden sollen</param>
+    /// <param name="modulId">Die Modul Id zum Filtern der Antworten</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException">Bei Fehlerhaften Angaben (ausserhalb des erlaubten Bereich)</exception>
+    /// <exception cref="InvalidOperationException">Kein Kontext oder Tabelle gefunden</exception>
+    public async Task<int> GetResponseCountByQuestionIdAndModulIdSemesterAndYear(int semester, int year, int questionId, int modulId)
+    {
+        if(semester is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
+        if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");
+
+        (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
+        DateTime startDate = new(year, startMonth, startDay);
+        DateTime endDate = semester == 1 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+
+        return await (_context.Responses ?? throw new InvalidOperationException())
+                     .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.Answer.QuestionId == questionId && r.ModulId == modulId)
+                     .CountAsync();
     }
 
     public async Task<List<int>> GetAvailableYearsFromResponses()
