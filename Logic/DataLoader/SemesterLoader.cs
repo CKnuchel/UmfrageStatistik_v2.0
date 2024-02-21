@@ -63,14 +63,15 @@ public class SemesterLoader : ISemesterLoader
 
         foreach(int year in years)
         {
-            labels.Add($"S1Y{year.ToString().Substring(2)}");
-            labels.Add($"S2Y{year.ToString().Substring(2)}");
+            labels.Add($"S1Y{year.ToString()[2..]}");
+            labels.Add($"S2Y{year.ToString()[2..]}");
         }
     }
 
     private async Task<List<IChartDataset>> CreateBasicDataset(ResponseRepository responseRepository)
     {
         // TODO Daten werden Fehlerhaft geladen
+        // Versuchen die verschidenen Semesterabfragen in SQL nachzubauen, um mögliche Fehler zu entdecken
 
         List<IChartDataset> datasets = new();
         int nColorIndex = 0;
