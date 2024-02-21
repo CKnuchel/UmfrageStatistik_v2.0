@@ -28,10 +28,10 @@ namespace Logic.DataLoader
         #endregion
 
         #region Publics
-        public async Task<ChartData> LoadData(Question question = null, Modul modul = null)
+        public async Task<ChartData> LoadData(Question? question = null, Modul modul = null!)
         {
             await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-            ResponseRepository responseRepository = new ResponseRepository(context);
+            ResponseRepository responseRepository = new(context);
 
             // Auswahl des Ladeprozesses basierend auf den Uebergabeparametern
             List<IChartDataset> datasets = question == null
@@ -57,10 +57,10 @@ namespace Logic.DataLoader
             return await GenericDatasetFetch(repository, question, modul);
         }
 
-        private async Task<List<IChartDataset>> GenericDatasetFetch(ResponseRepository repository, Question question = null, Modul modul = null)
+        private async Task<List<IChartDataset>> GenericDatasetFetch(ResponseRepository repository, Question? question = null, Modul? modul = null)
         {
-            List<IChartDataset> datasets = new List<IChartDataset>();
-            List<double> answerCount = new List<double>();
+            List<IChartDataset> datasets = new();
+            List<double> answerCount = new();
 
             for(int i = 1; i <= 10; i++)
             {
