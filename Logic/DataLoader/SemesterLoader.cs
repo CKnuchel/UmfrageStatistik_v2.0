@@ -38,7 +38,7 @@ public class SemesterLoader : ISemesterLoader
         years = await GetAvailableYears();
 
         // Chart Labels füllen
-        await CreateLabels(responseRepository);
+        await CreateBasicLabels(responseRepository);
 
         return new ChartData
                {
@@ -57,7 +57,7 @@ public class SemesterLoader : ISemesterLoader
     #endregion
 
     #region Privates
-    private async Task CreateLabels(ResponseRepository responseRepository)
+    private async Task CreateBasicLabels(ResponseRepository responseRepository)
     {
         if(years.Count == 0) throw new ArgumentException(nameof(years));
 
@@ -88,8 +88,8 @@ public class SemesterLoader : ISemesterLoader
             foreach(int year in years)
             {
                 // TODO mit dem IsSemesterDataAvailable() steuern, da sonst die 0 datensätze trotzdem kreiert werden!!!
-                dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(1, year, q.Id));
-                dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(2, year, q.Id));
+                if(await responseRepository.IsSemesterDataAvailable(year, 1)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(1, year, q.Id));
+                if(await responseRepository.IsSemesterDataAvailable(year, 2)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(2, year, q.Id));
             }
 
             dataset.Data = dataList;
