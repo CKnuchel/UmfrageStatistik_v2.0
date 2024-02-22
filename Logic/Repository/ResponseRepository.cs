@@ -10,8 +10,8 @@ public class ResponseRepository : IRepository<Response>
     #region Constants
     private static readonly Dictionary<int, (int startMonth, int startDay, int endMonth, int endDay)> SemesterDates = new()
                                                                                                                       {
-                                                                                                                          { 1, (8, 1, 1, 31) }, // 1. Semester von 1. August bis 31. Januar
-                                                                                                                          { 2, (2, 1, 7, 31) } // 2. Semester von 1. Februar bis 31. Juli
+                                                                                                                          { 1, (2, 1, 7, 31) }, // Semester von 1. Februar bis 31. Juli
+                                                                                                                          { 2, (8, 1, 1, 31) } // Semester von 1. August bis 31. Januar
                                                                                                                       };
     #endregion
 
@@ -88,7 +88,9 @@ public class ResponseRepository : IRepository<Response>
 
         (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
         DateTime startDate = new(year, startMonth, startDay);
-        DateTime endDate = semester == 1 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+        DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+
+        //TODO Anpassen,dass es richtige Daten zurückgibt (Semester komisch vertauscht)
 
         return await (_context.Responses ?? throw new InvalidOperationException())
                      .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.Answer.QuestionId == questionId)
@@ -102,7 +104,7 @@ public class ResponseRepository : IRepository<Response>
     /// <param name="year">Das Jahr, welches für die Abfrage relevant ist</param>
     /// <param name="questionId">Zu welcher Frage die Daten geladen werden sollen</param>
     /// <param name="modulId">Die Modul Id zum Filtern der Antworten</param>
-    /// <returns></returns>
+    /// <returns>Anzahl Antworten</returns>
     /// <exception cref="ArgumentOutOfRangeException">Bei Fehlerhaften Angaben (ausserhalb des erlaubten Bereich)</exception>
     /// <exception cref="InvalidOperationException">Kein Kontext oder Tabelle gefunden</exception>
     public async Task<int> GetResponseCountByQuestionIdAndModulIdSemesterAndYear(int semester, int year, int questionId, int modulId)
@@ -112,11 +114,36 @@ public class ResponseRepository : IRepository<Response>
 
         (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
         DateTime startDate = new(year, startMonth, startDay);
-        DateTime endDate = semester == 1 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+        DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+
+        //TODO Anpassen,dass es richtige Daten zurückgibt (Semester komisch vertauscht)
 
         return await (_context.Responses ?? throw new InvalidOperationException())
                      .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.Answer.QuestionId == questionId && r.ModulId == modulId)
                      .CountAsync();
+    }
+
+    /// <summary>
+    /// Zum validieren ob Einträge für den gewählten Bereich vorhanden sind.
+    /// </summary>
+    /// <param name="year">Das Jahr, welches für die Abfrage relevant ist</param>
+    /// <param name="semester"> 1 = erstes Semester, 2 = zweites Semester</param>
+    /// <returns>true = Einträge vorhanden oder false keine Einträge vorhanden</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Bei Fehlerhaften Angaben (ausserhalb des erlaubten Bereich)</exception>
+    /// <exception cref="InvalidOperationException">Kein Kontext oder Tabelle gefunden</exception>
+    public async Task<bool> IsSemesterDataAvailable(int year, int semester)
+    {
+        if(semester is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
+        if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");
+
+        (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
+        DateTime startDate = new(year, startMonth, startDay);
+        DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+
+        //TODO Anpassen,dass es richtige Daten zurückgibt (Semester komisch vertauscht)
+
+        return await (_context.Responses ?? throw new InvalidOperationException())
+                     .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate).AnyAsync();
     }
 
     public async Task<List<int>> GetAvailableYearsFromResponses()

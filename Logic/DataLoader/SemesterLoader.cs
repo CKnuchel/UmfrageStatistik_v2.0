@@ -12,9 +12,9 @@ public class SemesterLoader : ISemesterLoader
 {
     #region Fields
     private readonly IDbContextFactory<UmfrageContext> _contextFactory;
-    private List<Question> questions = new List<Question>();
+    private List<Question> questions = new();
     private IList<int> years = new List<int>();
-    private readonly List<string> labels = new List<string>();
+    private readonly List<string> labels = new();
     #endregion
 
     #region Constructors
@@ -38,7 +38,7 @@ public class SemesterLoader : ISemesterLoader
         years = await GetAvailableYears();
 
         // Chart Labels füllen
-        CreateLabels();
+        await CreateLabels(responseRepository);
 
         return new ChartData
                {
@@ -57,22 +57,19 @@ public class SemesterLoader : ISemesterLoader
     #endregion
 
     #region Privates
-    private void CreateLabels()
+    private async Task CreateLabels(ResponseRepository responseRepository)
     {
         if(years.Count == 0) throw new ArgumentException(nameof(years));
 
         foreach(int year in years)
         {
-            labels.Add($"S1Y{year.ToString()[2..]}");
-            labels.Add($"S2Y{year.ToString()[2..]}");
+            if(await responseRepository.IsSemesterDataAvailable(year, 1)) labels.Add($"S1Y{year.ToString()[2..]}");
+            if(await responseRepository.IsSemesterDataAvailable(year, 2)) labels.Add($"S2Y{year.ToString()[2..]}");
         }
     }
 
     private async Task<List<IChartDataset>> CreateBasicDataset(ResponseRepository responseRepository)
     {
-        // TODO Daten werden Fehlerhaft geladen
-        // Versuchen die verschidenen Semesterabfragen in SQL nachzubauen, um mögliche Fehler zu entdecken
-
         List<IChartDataset> datasets = new();
         int nColorIndex = 0;
 
@@ -90,6 +87,7 @@ public class SemesterLoader : ISemesterLoader
 
             foreach(int year in years)
             {
+                // TODO mit dem IsSemesterDataAvailable() steuern, da sonst die 0 datensätze trotzdem kreiert werden!!!
                 dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(1, year, q.Id));
                 dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(2, year, q.Id));
             }
