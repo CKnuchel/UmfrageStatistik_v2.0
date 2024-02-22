@@ -87,7 +87,6 @@ public class SemesterLoader : ISemesterLoader
 
             foreach(int year in years)
             {
-                // TODO mit dem IsSemesterDataAvailable() steuern, da sonst die 0 datensätze trotzdem kreiert werden!!!
                 if(await responseRepository.IsSemesterDataAvailable(year, 1)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(1, year, q.Id));
                 if(await responseRepository.IsSemesterDataAvailable(year, 2)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndSemesterAndYear(2, year, q.Id));
             }
