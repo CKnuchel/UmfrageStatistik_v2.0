@@ -97,7 +97,6 @@ public partial class Semester : ComponentBase
         this.BarChartData.Labels?.Clear();
         this.BarChartData.Datasets?.Clear();
 
-
         // ohne Filter
         if(this.SelectedModul.Id == 0)
         {
@@ -106,9 +105,7 @@ public partial class Semester : ComponentBase
         // Filterung nach Modul
         else
         {
-            throw new NotImplementedException();
-            //TODO Loader einbauen
-            //this.BarChartData = await this.SemesterLoader();
+            this.BarChartData = await this.SemesterLoader.LoadDataByModul(this.SelectedModul.Id);
         }
     }
 

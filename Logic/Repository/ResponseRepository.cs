@@ -90,8 +90,6 @@ public class ResponseRepository : IRepository<Response>
         DateTime startDate = new(year, startMonth, startDay);
         DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
 
-        //TODO Anpassen,dass es richtige Daten zurückgibt (Semester komisch vertauscht)
-
         return await (_context.Responses ?? throw new InvalidOperationException())
                      .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.Answer.QuestionId == questionId)
                      .CountAsync();
@@ -116,8 +114,6 @@ public class ResponseRepository : IRepository<Response>
         DateTime startDate = new(year, startMonth, startDay);
         DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
 
-        //TODO Anpassen,dass es richtige Daten zurückgibt (Semester komisch vertauscht)
-
         return await (_context.Responses ?? throw new InvalidOperationException())
                      .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.Answer.QuestionId == questionId && r.ModulId == modulId)
                      .CountAsync();
@@ -140,10 +136,30 @@ public class ResponseRepository : IRepository<Response>
         DateTime startDate = new(year, startMonth, startDay);
         DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
 
-        //TODO Anpassen,dass es richtige Daten zurückgibt (Semester komisch vertauscht)
-
         return await (_context.Responses ?? throw new InvalidOperationException())
                      .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate).AnyAsync();
+    }
+
+    /// <summary>
+    /// Zum validieren ob Einträge für den gewählten Bereich vorhanden sind.
+    /// </summary>
+    /// <param name="year">Das Jahr, welches für die Abfrage relevant ist</param>
+    /// <param name="semester"> 1 = erstes Semester, 2 = zweites Semester</param>
+    /// <param name="modulId">Die Id zum überprüfenden Modul</param>
+    /// <returns>true = Einträge vorhanden oder false keine Einträge vorhanden</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Bei Fehlerhaften Angaben (ausserhalb des erlaubten Bereich)</exception>
+    /// <exception cref="InvalidOperationException">Kein Kontext oder Tabelle gefunden</exception>
+    public async Task<bool> IsSemesterDataAvailableByModuleId(int year, int semester, int modulId)
+    {
+        if(semester is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(semester), "Semester muss 1 oder 2 sein.");
+        if(year < 0 || year > DateTime.Now.Year) throw new ArgumentOutOfRangeException(nameof(year), "Jahr muss positiv sein und darf das aktuelle Jahr nicht überschreiten.");
+
+        (int startMonth, int startDay, int endMonth, int endDay) = SemesterDates[semester];
+        DateTime startDate = new(year, startMonth, startDay);
+        DateTime endDate = semester == 2 ? new DateTime(year + 1, endMonth, endDay) : new DateTime(year, endMonth, endDay);
+
+        return await (_context.Responses ?? throw new InvalidOperationException())
+                     .Where(r => r.ResponseDate >= startDate && r.ResponseDate <= endDate && r.ModulId == modulId).AnyAsync();
     }
 
     public async Task<List<int>> GetAvailableYearsFromResponses()
