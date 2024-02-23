@@ -31,7 +31,6 @@
     <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\Data\Data.csproj" />
     <ProjectReference Include="..\Logic\Logic.csproj" />
-    <ProjectReference Include="..\Test\Test.csproj" />
   </ItemGroup>
 
 </Project>
