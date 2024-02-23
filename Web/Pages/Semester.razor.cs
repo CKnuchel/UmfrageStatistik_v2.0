@@ -49,14 +49,14 @@ public partial class Semester : ComponentBase
         await LoadInitialDataAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool bFirstRender)
     {
-        if(firstRender)
+        if(bFirstRender)
         {
             await InitializeChartsAsync();
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(bFirstRender);
     }
     #endregion
 
@@ -77,6 +77,8 @@ public partial class Semester : ComponentBase
     private void InitializeChartOptions()
     {
         this.BarChartOptions = new BarChartOptionsGenerator("y", "Anzahl Antworten", string.Empty, true).GetOptions();
+
+        // Individuelle Anpassungen
         this.BarChartOptions.Plugins.Title!.Text = "Semesterentwicklung";
         this.BarChartOptions.Plugins.Title!.Font!.Size = 24;
         this.BarChartOptions.Plugins.Title.Display = true;

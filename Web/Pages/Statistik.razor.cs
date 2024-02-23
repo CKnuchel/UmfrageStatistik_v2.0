@@ -79,14 +79,14 @@ public partial class Statistik : ComponentBase
         await LoadInitialDataAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool bFirstRender)
     {
-        if(firstRender)
+        if(bFirstRender)
         {
             await InitializeChartsAsync();
         }
 
-        await base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(bFirstRender);
     }
     #endregion
 
@@ -126,21 +126,21 @@ public partial class Statistik : ComponentBase
 
     private async Task DetermineChartDataAsync()
     {
-        // ohne Filter (Typ 1 und 2) i.O
+        // ohne Filter
         if(this.SelectedModul.Id == 0 && this.SelectedQuestion.Id == 0)
         {
             this.PieChartData = await this.BasicLoader.LoadData();
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
-        // Filterung nach Modul (Typ 1 und 2) i.O
+        // Filterung nach Modul (Typ 1 und 2)
         else if(this.SelectedModul.Id != 0 && this.SelectedQuestion is { Id: 0, Type: (int) QuestionType.AuswahlFrage })
         {
             this.PieChartData = await this.FilterLoader.LoadData(this.SelectedModul);
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
-        // Filterung nach Frage ( Typ 1) i.O
+        // Filterung nach Frage ( Typ 1)
         else if(this.SelectedModul.Id == 0 && this.SelectedQuestion.Id != 0 && this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage)
         {
             this.PieChartData = await this.FilterLoader.LoadData(question: this.SelectedQuestion);
@@ -154,7 +154,7 @@ public partial class Statistik : ComponentBase
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
-        // Filterung nach Frage und Modul (Typ 2)
+        // Filterung nach Modul und Frage (Typ 2)
         else if(this.SelectedQuestion.Type == (int) QuestionType.Zahlenbereich && this.SelectedQuestion is not { Id: 0 } && this.SelectedModul is not { Id: 0 })
         {
             this.BarChartData = await this.BarChartLoader.LoadData(this.SelectedQuestion, this.SelectedModul);
