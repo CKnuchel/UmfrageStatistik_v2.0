@@ -47,7 +47,7 @@ public class SemesterLoader : ISemesterLoader
                };
     }
 
-    public async Task<ChartData> LoadDataByModul(int modulId)
+    public async Task<ChartData> LoadDataByModul(int nModulId)
     {
         await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
         ResponseRepository responseRepository = new(context);
@@ -57,12 +57,12 @@ public class SemesterLoader : ISemesterLoader
 
         years = await GetAvailableYears();
 
-        await CreateLabelsByAvailableModule(responseRepository, modulId);
+        await CreateLabelsByAvailableModule(responseRepository, nModulId);
 
         return new ChartData
                {
                    Labels = labels,
-                   Datasets = await CreateDatasetByModulId(responseRepository, modulId)
+                   Datasets = await CreateDatasetByModulId(responseRepository, nModulId)
                };
     }
 
@@ -87,14 +87,14 @@ public class SemesterLoader : ISemesterLoader
         }
     }
 
-    private async Task CreateLabelsByAvailableModule(ResponseRepository responseRepository, int modulId)
+    private async Task CreateLabelsByAvailableModule(ResponseRepository responseRepository, int nModulId)
     {
         if(years.Count == 0) throw new ArgumentException(nameof(years));
 
         foreach(int year in years)
         {
-            if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 1, modulId)) labels.Add($"S1Y{year.ToString()[2..]}");
-            if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 2, modulId)) labels.Add($"S2Y{year.ToString()[2..]}");
+            if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 1, nModulId)) labels.Add($"S1Y{year.ToString()[2..]}");
+            if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 2, nModulId)) labels.Add($"S2Y{year.ToString()[2..]}");
         }
     }
 
@@ -131,7 +131,7 @@ public class SemesterLoader : ISemesterLoader
         return datasets;
     }
 
-    private async Task<List<IChartDataset>> CreateDatasetByModulId(ResponseRepository responseRepository, int modulId)
+    private async Task<List<IChartDataset>> CreateDatasetByModulId(ResponseRepository responseRepository, int nModulId)
     {
         List<IChartDataset> datasets = new();
         int nColorIndex = 0;
@@ -150,8 +150,8 @@ public class SemesterLoader : ISemesterLoader
 
             foreach(int year in years)
             {
-                if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 1, modulId)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndModulIdSemesterAndYear(1, year, q.Id, modulId));
-                if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 2, modulId)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndModulIdSemesterAndYear(2, year, q.Id, modulId));
+                if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 1, nModulId)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndModulIdSemesterAndYear(1, year, q.Id, nModulId));
+                if(await responseRepository.IsSemesterDataAvailableByModuleId(year, 2, nModulId)) dataList.Add(await responseRepository.GetResponseCountByQuestionIdAndModulIdSemesterAndYear(2, year, q.Id, nModulId));
             }
 
             dataset.Data = dataList;

@@ -49,8 +49,8 @@ namespace Logic.DataLoader
 
             foreach(Question question in questions)
             {
-                int count = await responseRepository.GetResponseCountByQuestionIdAsync(question.Id);
-                answerCount.Add(count);
+                int nCount = await responseRepository.GetResponseCountByQuestionIdAsync(question.Id);
+                answerCount.Add(nCount);
             }
 
             datasets.Add(new PieChartDataset
