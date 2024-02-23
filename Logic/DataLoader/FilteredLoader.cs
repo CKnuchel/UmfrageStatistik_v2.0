@@ -12,8 +12,6 @@ namespace Logic.DataLoader
     {
         #region Fields
         private readonly IDbContextFactory<UmfrageContext> _contextFactory;
-        private IList<Question> questions = new List<Question>();
-        private IList<Answer> answers = new List<Answer>();
         #endregion
 
         #region Constructors
@@ -24,129 +22,64 @@ namespace Logic.DataLoader
         #endregion
 
         #region Publics
-        public async Task<ChartData> LoadData(Modul? modul)
+        public async Task<ChartData> LoadData(Modul? modul = null, Question? question = null)
         {
-            if(modul == null) throw new ArgumentNullException(nameof(modul));
+            if(modul == null && question == null) throw new ArgumentException("Modul und Frage dürfen nicht beide null sein.");
 
             await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-            QuestionRepository questionRepository = new(context);
             ResponseRepository responseRepository = new(context);
 
-            questions = await questionRepository.GetAllAsync();
+            List<string> labels = new();
+            List<double> answerCounts = new();
 
-            List<IChartDataset> datasets = await GetAnswerCountByQuestionAndModulId(modul.Id, responseRepository);
+            if(question == null)
+            {
+                QuestionRepository questionRepository = new(context);
+                List<Question> questions = await questionRepository.GetAllAsync();
+                labels.AddRange(questions.Select(q => q.Text));
 
-            return new ChartData
-                   {
-                       Labels = questions.Select(q => q.Text).ToList(),
-                       Datasets = datasets
-                   };
-        }
+                foreach(Question q in questions)
+                {
+                    answerCounts.Add(await responseRepository.GetResponseCountByModuleIdAndQuestionIdAsync(modul?.Id ?? 0, q.Id));
+                }
+            }
+            else
+            {
+                AnswerRepository answerRepository = new(context);
+                List<Answer> answers = await answerRepository.GetByQuestionId(question.Id);
+                labels.AddRange(answers.Select(a => a.Text.Split('(')[0].Trim()));
 
-        public async Task<ChartData> LoadData(Question? question)
-        {
-            if(question == null) throw new ArgumentNullException(nameof(question));
+                foreach(Answer answer in answers)
+                {
+                    int count = modul == null
+                        ? await responseRepository.GetResponseCountByAnswerIdAsync(answer.Id)
+                        : await responseRepository.GetResponseCountByAnswerIdAndModulId(modul.Id, answer.Id);
+                    answerCounts.Add(count);
+                }
+            }
 
-            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-            AnswerRepository answerRepository = new(context);
-            ResponseRepository responseRepository = new(context);
-
-            answers = await answerRepository.GetByQuestionId(question.Id);
-
-            List<IChartDataset> datasets = await GetAnswerCountByAnswerId(responseRepository);
-
-            return new ChartData
-                   {
-                       Labels = answers.Select(q => q.Text.Split('(')[0].Trim()).ToList(),
-                       Datasets = datasets
-                   };
-        }
-
-        public async Task<ChartData> LoadData(Question? question, Modul? modul)
-        {
-            if(question == null) throw new ArgumentNullException(nameof(question));
-            if(modul == null) throw new ArgumentNullException(nameof(modul));
-
-            await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
-            QuestionRepository questRepository = new(context);
-            AnswerRepository answerRepository = new(context);
-            ResponseRepository responseRepository = new(context);
-
-            questions = await questRepository.GetAllAsync();
-            answers = await answerRepository.GetByQuestionId(question.Id);
-
-            List<IChartDataset> datasets = await GetAnswerCountByAnswerIdAndModulIdAsync(modul.Id, responseRepository);
-
-            return new ChartData
-                   {
-                       Labels = answers.Select(q => q.Text.Split('(')[0].Trim()).ToList(),
-                       Datasets = datasets
-                   };
+            return CreateChartData(labels, answerCounts);
         }
         #endregion
 
         #region Privates
-        private async Task<List<IChartDataset>> GetAnswerCountByQuestionAndModulId(int modulId, ResponseRepository responseRepository)
+        private ChartData CreateChartData(List<string> labels, List<double> answerCounts)
         {
-            List<double> answerCount = new();
-            List<IChartDataset> datasets = new();
-
-            foreach(Question question in questions)
+            List<IChartDataset> datasets = new()
             {
-                int count = await responseRepository.GetResponseCountByModuleIdAndQuestionIdAsync(modulId, question.Id);
-                answerCount.Add(count);
-            }
+                                               new PieChartDataset
+                                               {
+                                                   Label = "Antwortanzahl",
+                                                   Data = answerCounts,
+                                                   BackgroundColor = ColorGenerator.CategoricalTwentyColors().ToList()
+                                               }
+                                           };
 
-            datasets.Add(new PieChartDataset
-                         {
-                             Label = "Erhaltene Antworten",
-                             Data = answerCount,
-                             BackgroundColor = ColorGenerator.CategoricalTwentyColors().ToList()
-                         });
-
-            return datasets;
-        }
-
-        private async Task<List<IChartDataset>> GetAnswerCountByAnswerId(ResponseRepository responseRepository)
-        {
-            List<double> answerCount = new();
-            List<IChartDataset> dataset = new();
-
-            foreach(Answer answer in answers)
-            {
-                int count = await responseRepository.GetResponseCountByAnswerIdAsync(answer.Id);
-                answerCount.Add(count);
-            }
-
-            dataset.Add(new PieChartDataset
-                        {
-                            Label = "Anzahl Antworten",
-                            Data = answerCount,
-                            BackgroundColor = ColorGenerator.CategoricalTwentyColors().ToList()
-                        });
-
-            return dataset;
-        }
-
-        private async Task<List<IChartDataset>> GetAnswerCountByAnswerIdAndModulIdAsync(int modulId, ResponseRepository responseRepository)
-        {
-            List<double> answerCount = new();
-            List<IChartDataset> dataset = new();
-
-            foreach(Answer answer in answers)
-            {
-                int count = await responseRepository.GetResponseCountByAnswerIdAndModulId(modulId, answer.Id);
-                answerCount.Add(count);
-            }
-
-            dataset.Add(new PieChartDataset
-                        {
-                            Label = "Anzahl Antworten",
-                            Data = answerCount,
-                            BackgroundColor = ColorGenerator.CategoricalTwentyColors().ToList()
-                        });
-
-            return dataset;
+            return new ChartData
+                   {
+                       Labels = labels,
+                       Datasets = datasets
+                   };
         }
         #endregion
     }

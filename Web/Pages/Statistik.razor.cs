@@ -143,14 +143,14 @@ public partial class Statistik : ComponentBase
         // Filterung nach Frage ( Typ 1) i.O
         else if(this.SelectedModul.Id == 0 && this.SelectedQuestion.Id != 0 && this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage)
         {
-            this.PieChartData = await this.FilterLoader.LoadData(this.SelectedQuestion);
+            this.PieChartData = await this.FilterLoader.LoadData(question: this.SelectedQuestion);
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }
         // Filterung nach Modul und Frage (Typ 1)
         else if(this.SelectedQuestion.Type == (int) QuestionType.AuswahlFrage && this.SelectedQuestion.Id != 0 && this.SelectedModul.Id != 0)
         {
-            this.PieChartData = await this.FilterLoader.LoadData(this.SelectedQuestion, this.SelectedModul);
+            this.PieChartData = await this.FilterLoader.LoadData(question: this.SelectedQuestion, modul: this.SelectedModul);
             this.DisplayPieChart = true;
             this.DisplayBarChart = false;
         }

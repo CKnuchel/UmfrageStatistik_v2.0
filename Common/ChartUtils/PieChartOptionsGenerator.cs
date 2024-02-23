@@ -4,49 +4,46 @@ namespace Common.ChartUtils;
 
 public class PieChartOptionsGenerator
 {
-    #region Properties
-    private PieChartOptions options { set; get; }
+    #region Fields
+    private PieChartOptions _options;
     #endregion
 
     #region Constructors
-    public PieChartOptionsGenerator(string defaultTitle)
+    public PieChartOptionsGenerator(string strDefaultTitle)
     {
+        _options = new PieChartOptions();
         CreateDefaultChartOptions();
-        this.options.Plugins.Title.Text = defaultTitle;
+        _options.Plugins.Title!.Text = strDefaultTitle;
     }
     #endregion
 
     #region Publics
     public PieChartOptions GetOptions()
     {
-        return this.options;
+        return _options;
     }
     #endregion
 
     #region Privates
     private void CreateDefaultChartOptions()
     {
-        this.options = new PieChartOptions
-                       {
-                           Responsive = true,
-                           Plugins = new PieChartPlugins
+        _options = new PieChartOptions
+                   {
+                       Responsive = true,
+                       Plugins = new PieChartPlugins
+                                 {
+                                     Title = new ChartPluginsTitle
+                                             {
+                                                 Display = true
+                                             },
+                                     Legend =
                                      {
-                                         Title = new ChartPluginsTitle
-                                                 {
-                                                     Display = true,
-                                                     Font =
-                                                     {
-                                                         Size = 30
-                                                     }
-                                                 },
-                                         Legend =
-                                         {
-                                             Position = "bottom"
-                                         }
+                                         Position = "bottom",
+                                         Align = "left"
                                      }
-                       };
-
-        this.options.Plugins.Legend.Align = "left";
+                                 }
+                   };
+        _options.Plugins.Title.Font!.Size = 30;
     }
     #endregion
 }
