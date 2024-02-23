@@ -113,7 +113,7 @@ public class ResponseRepository : IRepository<Response>
         return query;
     }
 
-    private (DateTime dtStartDate, DateTime dtEndDate) GetSemesterDateRange(int nSemester, int nYear)
+    private static (DateTime dtStartDate, DateTime dtEndDate) GetSemesterDateRange(int nSemester, int nYear)
     {
         (int nStartMonth, int nStartDay, int nEndMonth, int nEndDay) = SemesterDates[nSemester];
         DateTime dtStartDate = new(nYear, nStartMonth, nStartDay);
