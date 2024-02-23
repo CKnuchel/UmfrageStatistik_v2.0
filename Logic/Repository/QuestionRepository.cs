@@ -23,15 +23,5 @@ public class QuestionRepository : IRepository<Question>
     {
         return await (_context.Questions ?? throw new InvalidOperationException()).ToListAsync(cancellationToken: CancellationToken.None);
     }
-
-    public async Task<Question> GetByIdAsync(int id)
-    {
-        return await (_context.Questions ?? throw new InvalidOperationException()).FindAsync(id) ?? throw new NullReferenceException();
-    }
-
-    public async Task<List<Question>> GetAllByType(int nType)
-    {
-        return await (_context.Questions ?? throw new InvalidOperationException()).Where(q => q.Type == nType).ToListAsync(cancellationToken: CancellationToken.None);
-    }
     #endregion
 }

@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-using Common.Models;
+﻿using Common.Models;
 using Data.Context;
 using Logic.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -25,15 +24,9 @@ public class AnswerRepository : IRepository<Answer>
         return await (_context.Answers ?? throw new InvalidOperationException()).ToListAsync(cancellationToken: CancellationToken.None);
     }
 
-    public async Task<Answer> GetByIdAsync(int id)
+    public async Task<List<Answer>> GetByQuestionId(int nId)
     {
-        return await (_context.Answers ?? throw new InvalidOperationException()).FindAsync(id) ?? throw new NullReferenceException();
+        return await (_context.Answers ?? throw new InvalidOperationException()).Where(a => a.QuestionId == nId).ToListAsync() ?? throw new NullReferenceException();
     }
-
-    public async Task<List<Answer>> GetByQuestionId(int id)
-    {
-        return await (_context.Answers ?? throw new InvalidOperationException()).Where(a => a.QuestionId == id).ToListAsync() ?? throw new NullReferenceException();
-    }
-
     #endregion
 }

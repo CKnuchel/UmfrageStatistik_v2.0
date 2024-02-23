@@ -23,10 +23,5 @@ public class ModulRepository : IRepository<Modul>
     {
         return await (_context.Module ?? throw new InvalidOperationException()).ToListAsync(cancellationToken: CancellationToken.None);
     }
-
-    public async Task<Modul> GetByIdAsync(int id)
-    {
-        return await (_context.Module ?? throw new InvalidOperationException()).FindAsync(id) ?? throw new NullReferenceException();
-    }
     #endregion
 }
