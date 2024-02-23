@@ -24,7 +24,7 @@ namespace Logic.DataLoader
         #endregion
 
         #region Publics
-        public async Task<ChartData> LoadData(Question? question = null, Modul modul = null!)
+        public async Task<ChartData> LoadData(Question? question = null, Modul? modul = null!)
         {
             await using UmfrageContext context = await _contextFactory.CreateDbContextAsync();
             ResponseRepository responseRepository = new(context);
@@ -32,7 +32,7 @@ namespace Logic.DataLoader
             // Auswahl des Ladeprozesses basierend auf den Uebergabeparametern
             List<IChartDataset> datasets = question == null
                 ? await GetDatasetWithStandardData(responseRepository)
-                : await GetDatasetByParameters(responseRepository, question, modul);
+                : await GetDatasetByParameters(responseRepository, question, modul!);
 
             return new ChartData
                    {
