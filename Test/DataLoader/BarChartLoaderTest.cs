@@ -31,6 +31,7 @@ namespace Test.DataLoader
         public void LoadDataWithNoParameter()
         {
             // TODO
+            throw new NotImplementedException();
         }
         #endregion
     }

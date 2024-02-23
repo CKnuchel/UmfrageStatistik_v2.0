@@ -28,7 +28,7 @@ public static class DbContextTestSetup
     /// <returns>Ein vollständig initialisierter UmfrageContext bereit für Tests.</returns>
     public static UmfrageContext CreateContext(DbContextOptions options)
     {
-        UmfrageContext context = new UmfrageContext(options);
+        UmfrageContext context = new(options);
 
         // Stellt sicher, dass eine vorherige In-Memory-Datenbank gleichen Namens gelöscht wird.
         context.Database.EnsureDeleted();
