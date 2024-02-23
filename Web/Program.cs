@@ -30,7 +30,7 @@ builder.Services.AddDbContext<UmfrageContext>(options => // Hinzufügen von unser
                                                   options.UseSqlServer(connectionString); // Definieren der Verbindung fuer zum SQL Server
                                               });
 
-builder.Services.AddDbContextFactory<UmfrageContext>(options => { options.UseSqlServer(connectionString); }, ServiceLifetime.Scoped);
+builder.Services.AddDbContextFactory<UmfrageContext>(options => { options.UseSqlServer(connectionString); }, ServiceLifetime.Scoped); // Muss Scoped sein!
 
 WebApplication app = builder.Build();
 
