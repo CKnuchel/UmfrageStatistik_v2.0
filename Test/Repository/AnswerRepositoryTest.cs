@@ -10,7 +10,7 @@ public class AnswerRepositoryTest
 {
     #region Fields
     private UmfrageContext? _context;
-    private AnswerRepository answerRepository;
+    private AnswerRepository? answerRepository;
     #endregion
 
     #region Initialize and Cleanup
