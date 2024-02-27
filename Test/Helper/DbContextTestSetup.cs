@@ -104,7 +104,33 @@ public static class DbContextTestSetup
         // Responses
         List<Response> testResponses = new()
                                        {
-                                           new Response { Id = 1, } //TODO
+                                           // Zu Frage 1
+                                           new Response { Id = 1, AnswerId = 1, ModulId = 1, ResponseDate = new DateTime(2016, 08, 23), Value = 1 },
+                                           new Response { Id = 2, AnswerId = 1, ModulId = 1, ResponseDate = new DateTime(2017, 04, 02), Value = 1 },
+                                           new Response { Id = 3, AnswerId = 2, ModulId = 1, ResponseDate = new DateTime(2018, 08, 02), Value = 1 },
+                                           new Response { Id = 4, AnswerId = 3, ModulId = 1, ResponseDate = new DateTime(2016, 08, 01), Value = 1 },
+                                           new Response { Id = 5, AnswerId = 2, ModulId = 2, ResponseDate = new DateTime(2017, 05, 12), Value = 1 },
+                                           new Response { Id = 6, AnswerId = 3, ModulId = 3, ResponseDate = new DateTime(2017, 05, 01), Value = 1 },
+
+                                           // Zu Frage 2
+                                           new Response { Id = 7, AnswerId = 4, ModulId = 2, ResponseDate = new DateTime(2017, 05, 20), Value = 1 },
+                                           new Response { Id = 8, AnswerId = 4, ModulId = 1, ResponseDate = new DateTime(2018, 01, 01), Value = 1 },
+                                           new Response { Id = 9, AnswerId = 5, ModulId = 3, ResponseDate = new DateTime(2016, 08, 02), Value = 1 },
+                                           new Response { Id = 10, AnswerId = 6, ModulId = 1, ResponseDate = new DateTime(2017, 07, 31), Value = 1 },
+
+                                           // zu Frage 3
+                                           new Response { Id = 11, AnswerId = 7, ModulId = 2, ResponseDate = new DateTime(2017, 02, 01), Value = 0 },
+                                           new Response { Id = 12, AnswerId = 7, ModulId = 2, ResponseDate = new DateTime(2017, 07, 31), Value = 10 },
+                                           new Response { Id = 13, AnswerId = 7, ModulId = 2, ResponseDate = new DateTime(2017, 04, 15), Value = 8 },
+                                           new Response { Id = 14, AnswerId = 7, ModulId = 3, ResponseDate = new DateTime(2017, 04, 09), Value = 10 },
+                                           new Response { Id = 15, AnswerId = 7, ModulId = 1, ResponseDate = new DateTime(2018, 08, 01), Value = 8 },
+
+                                           // zu Frage 4
+                                           new Response { Id = 16, AnswerId = 8, ModulId = 2, ResponseDate = new DateTime(2016, 08, 01), Value = 8 },
+                                           new Response { Id = 17, AnswerId = 8, ModulId = 3, ResponseDate = new DateTime(2016, 07, 31), Value = 10 },
+                                           new Response { Id = 18, AnswerId = 8, ModulId = 3, ResponseDate = new DateTime(2018, 05, 28), Value = 0 },
+                                           new Response { Id = 19, AnswerId = 8, ModulId = 1, ResponseDate = new DateTime(2017, 04, 08), Value = 10 },
+                                           new Response { Id = 20, AnswerId = 8, ModulId = 1, ResponseDate = new DateTime(2016, 02, 01), Value = 6 }
                                        };
 
         context.Responses!.AddRange(testResponses);
