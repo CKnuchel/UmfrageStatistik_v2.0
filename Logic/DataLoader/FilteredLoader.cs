@@ -32,7 +32,7 @@ namespace Logic.DataLoader
             List<string> labels = new();
             List<double> answerCounts = new();
 
-            if(question == null)
+            if(question == null && modul != null) // Filter nach Modul
             {
                 QuestionRepository questionRepository = new(context);
                 List<Question> questions = await questionRepository.GetAllAsync();
@@ -52,8 +52,8 @@ namespace Logic.DataLoader
                 foreach(Answer answer in answers)
                 {
                     int count = modul == null
-                        ? await responseRepository.GetResponseCountByAnswerIdAsync(answer.Id)
-                        : await responseRepository.GetResponseCountByAnswerIdAndModulId(modul.Id, answer.Id);
+                        ? await responseRepository.GetResponseCountByAnswerIdAsync(answer.Id) // Filtern nach Frage
+                        : await responseRepository.GetResponseCountByAnswerIdAndModulId(modul.Id, answer.Id); // Filtern nach Frage und Modul
                     answerCounts.Add(count);
                 }
             }

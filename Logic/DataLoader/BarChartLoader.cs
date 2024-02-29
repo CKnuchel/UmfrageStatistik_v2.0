@@ -31,8 +31,8 @@ namespace Logic.DataLoader
 
             // Auswahl des Ladeprozesses basierend auf den Uebergabeparametern
             List<IChartDataset> datasets = question == null
-                ? await GetDatasetWithStandardData(responseRepository)
-                : await GetDatasetByParameters(responseRepository, question, modul!);
+                ? await GenericDatasetFetch(responseRepository)
+                : await GenericDatasetFetch(responseRepository, question, modul!);
 
             return new ChartData
                    {
@@ -43,16 +43,6 @@ namespace Logic.DataLoader
         #endregion
 
         #region Privates
-        private static async Task<List<IChartDataset>> GetDatasetWithStandardData(ResponseRepository repository)
-        {
-            return await GenericDatasetFetch(repository);
-        }
-
-        private static async Task<List<IChartDataset>> GetDatasetByParameters(ResponseRepository repository, Question question, Modul modul)
-        {
-            return await GenericDatasetFetch(repository, question, modul);
-        }
-
         private static async Task<List<IChartDataset>> GenericDatasetFetch(ResponseRepository repository, Question? question = null, Modul? modul = null)
         {
             List<IChartDataset> datasets = new();
